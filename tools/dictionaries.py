@@ -11,6 +11,8 @@ def zdict(x):
         raise ValueError("Invalid redshift value: %s. You may want to add it in the dictionary"%x)
     return vals
 
+    
+
 def snapdict(x):
     vals = {
         0 : '63',

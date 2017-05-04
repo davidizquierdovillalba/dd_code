@@ -1,20 +1,29 @@
 import os
 import sys
 
-##############################
-#                            #
-#           FOLDERS          #
-#                            #
-##############################
+from dictionaries import *
+from Useful_func import *
+
+
+
+###################################
+#                                 #
+#      FOLDERS and FILENAMES      #
+#                                 #
+###################################
 
 home = os.path.expanduser('~')+'/'              # current home folder (automatic)
-here = home + 'Documentos/thesis/dd_code/'      # folder where the code is
-LG_dir = home + 'Documentos/thesis/LGalaxies/'  # LGalaxies code root folder
+here = home + 'works/phd/dd_code/'      # folder where the code is
+LG_dir = home + 'LGalaxies/'  # LGalaxies code root folder
 LGout_dir = LG_dir + 'output/'                  # LGalaxies outputs folder
-AuxCode_dir = LG_dir + 'AuxCode/Python/'        # folder in which useful python code is
-plots_dir = here + 'plots/'                     # (this code) output plots folder
+AuxCode_dir = LG_dir + 'AuxCode/Python/'        # folder in which Bruno's useful python code is
+
+plots_dir = here + 'plots/'                     # directory to store plots made by this code
 if not os.path.exists(plots_dir):
 	os.makedirs(plots_dir)
+
+sys.path.append(AuxCode_dir + 'Misc/')          # import read_snap and read_tree functions
+from read_lgal import *
 
 
 #################################
@@ -23,44 +32,43 @@ if not os.path.exists(plots_dir):
 #                               #
 #################################
 
-zlist = [0, 1, 2, 3]
-GALTREE = False
-MII = False
-Plotlog = True
-Factor10 = [True,True]
-removeh =  False
-if Plotlog:
-	sizebin = 0.1
-	if Factor10[0]:
-		MoL_func_xlim = [4.0,9.9]
-	else:
-		MoL_func_xlim = [-6.0,-1.9]
-else:
-	sizebin = 1/20
-        if Factor10[0]:
-                MoL_func_xlim = [10**4.0,10**9.9]
-        else:
-                MoL_func_xlim = [10**-6.0,10**-1.9]
-MoL_func_ylim  = [10**-5, 10**-1.0]
-firstfile = 0
-lastfile = 11
-DMap_RES = 500 # Resolution (number of bins in each axis) for density maps
-ns = plots_dir + 'check.png'
+GALTREE = False          # if 'True' reads galtree mode outputs and structures
+MII = False              # if 'True' MII boxsize is used (see below)
+firstfile = 0            # first file to be used in analysis/plots
+lastfile = 11            # last file to be used in analysis/plots
+zlist = [0, 1, 2, 3]     # redshift list to use/plot
+wtp = [5, 3]             # properties to plot on x and y axis respectively. Available quatities are:
+                         # 0:BH Mass,  1:StellarMass,  2:Mvir,  3:Sfr,  4:BulgeMass,  5:DiskMass
 
-wtp = [0, 3]  # properties to plot  0:BH Mass, 1:StellarMass, 2:Mvir, 3:Sfr, 4:BulgeMass, 5:DiskMass
+Plotlog = True           # if 'True' log-scale plots are produced
+Factor10 = [True,True]   # if 'True' uses 1.**10 units in plots (x and y axis, respectively)
+removeh =  False         # if 'True' plotted quantities are in "h-free" units (for data comparison)
+DMap_RES = 200           # Resolution (number of bins in each axis) for density maps (optimal: 100)
+
+sizebin = 0.1
 
 
-sys.path.append(AuxCode_dir + 'Misc/')
-from read_lgal import * 
-if GALTREE:
-	fileprefx = 'SA_galtree_'
-else:
-	fileprefx = 'SA_z'
-from dictionaries import *
-P1 = Prop(wtp[0]) 
-P2 = Prop(wtp[1])
+                
 
-# COSMOLOGIES & DARK MATTER SIMS #
+
+###################################
+#                                 #
+#            FILENAMES            #
+#                                 #
+###################################
+dens_ns = plots_dir + Prop(wtp[0])+'_vs_'+Prop(wtp[1])+'density_plot.png'  # density plot name
+func_ns = plots_dir + Prop(wtp[0])+'_function.png'             # luminosity/mass function plot name
+
+fileprefx = get_prefix(GALTREE, MII)     # automatic file prefix. Always call with all keywords
+
+
+
+
+########################################
+#                                      #
+#    COSMOLOGIES & DARK MATTER SIMS    #
+#                                      #
+########################################
 
 WMAP1=0
 PLANCK=1
