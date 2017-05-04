@@ -7,12 +7,12 @@ import sys
 #                            #
 ##############################
 
-home = os.path.expanduser('~')+'/'            # current home folder (automatic)
-here = home + 'Documentos/thesis/dd_code/'
-LG_dir = home + 'Documentos/thesis/LGalaxies/'# LGalaxies code root folder
-LGout_dir = LG_dir + 'output/'
-AuxCode_dir = LG_dir + 'AuxCode/Python/'      # folder in which useful python code is
-plots_dir = here + 'plots/'
+home = os.path.expanduser('~')+'/'              # current home folder (automatic)
+here = home + 'Documentos/thesis/dd_code/'      # folder where the code is
+LG_dir = home + 'Documentos/thesis/LGalaxies/'  # LGalaxies code root folder
+LGout_dir = LG_dir + 'output/'                  # LGalaxies outputs folder
+AuxCode_dir = LG_dir + 'AuxCode/Python/'        # folder in which useful python code is
+plots_dir = here + 'plots/'                     # (this code) output plots folder
 if not os.path.exists(plots_dir):
 	os.makedirs(plots_dir)
 
