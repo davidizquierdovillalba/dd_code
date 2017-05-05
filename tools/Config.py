@@ -11,40 +11,33 @@ from Useful_func import *
 #      FOLDERS and FILENAMES      #
 #                                 #
 ###################################
-Daniele = False
-David = True
+home = os.path.expanduser('~')+'/'
+user = home[12:-1]
 
-if(Daniele == True):
-	home = os.path.expanduser('~')+'/'              # current home folder (automatic)
+if(user == 'dspinoso'):
 	here = home + 'works/phd/dd_code/'              # folder where the code is
 	LG_dir = home + 'LGalaxies/'                    # LGalaxies code root folder
-	LGout_dir = LG_dir + 'output/'                  # LGalaxies outputs folder
-	AuxCode_dir = LG_dir + 'AuxCode/Python/'        # folder in which Bruno's useful python code is
 
-	plots_dir = here + 'plots/'                     # directory to store plots made by this code
-	if not os.path.exists(plots_dir):
-		os.makedirs(plots_dir)
-
-	sys.path.append(AuxCode_dir + 'Misc/')          # import read_snap and read_tree functions
-	from read_lgal import *
-
-
-elif(David == True):
-	home = os.path.expanduser('~')+'/'              # current home folder (automatic)
+elif(user == 'dizquierdo'):
 	here = home + '/Documentos/thesis/dd_code/'     # folder where the code is
 	LG_dir = home + 'Documentos/thesis/LGalaxies/'  # LGalaxies code root folder
-	LGout_dir = LG_dir + 'output/'                  # LGalaxies outputs folder
-	AuxCode_dir = LG_dir + 'AuxCode/Python/'        # folder in which Bruno's useful python code is
-	
-	plots_dir = here + 'plots/'                     # directory to store plots made by this code
-	if not os.path.exists(plots_dir):
-		os.makedirs(plots_dir)
-
-	sys.path.append(AuxCode_dir + 'Misc/')          # import read_snap and read_tree functions
-	from read_lgal import *
 
 else:
 	print 'Error: User not found in the Config.py'
+        
+LGout_dir = LG_dir + 'output/'                  # LGalaxies outputs folder
+AuxCode_dir = LG_dir + 'AuxCode/Python/'        # folder in which Bruno's useful python code is
+
+plots_dir = here + 'plots/'                     # directory to store plots made by this code
+if not os.path.exists(plots_dir):
+        os.makedirs(plots_dir)
+        
+sys.path.append(AuxCode_dir + 'Misc/')          # import read_snap and read_tree functions
+from read_lgal import *
+
+
+
+        
 
 #################################
 #                               #
