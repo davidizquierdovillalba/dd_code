@@ -208,12 +208,10 @@ def MoL_func():
                 
                 axarr[row[i],col[i]].plot(pp_c,phi,color='red', linewidth=2, label = '$z$ = ' + zdict(i))
                 axarr[row[i],col[i]].set_yscale('log')
-                #axarr[row[i],col[i]].set_ylim(MoL_func_ylim)
+
 		leg = axarr[row[i],col[i]].legend(loc = 'upper right',fontsize = 18, handlelength=0, handletextpad=0, fancybox=True)
                 for item in leg.legendHandles:
                         item.set_visible(False)		
-
-		#axarr[row[i],col[i]].set_xlim(MoL_func_xlim)
 
                 if(row[i] == 0):
                         axarr[row[i],col[i]].set_xticklabels([''])
@@ -221,12 +219,15 @@ def MoL_func():
                         axarr[row[i],col[i]].set_yticklabels([''])
 
 	for i in zlist:
-		axarr[row[i],col[i]].set_ylim(min(minimY)*0.9, max(maximY)*1.1)
+		axarr[row[i],col[i]].set_ylim(0.9*min(minimY), 1.1*max(maximY))
                 axarr[row[i],col[i]].set_xlim(min(minimX),max(maximX))
 
 	f.canvas.draw()
+        labels = [item.get_text() for item in axarr[1,0].get_xticklabels()]
+        labels[-1] = ' '
+        axarr[1,0].set_xticklabels(labels)
         labels = [item.get_text() for item in axarr[0,0].get_yticklabels()]
-        labels[1] = ' '
+        labels[-1] = ' '
         axarr[0,0].set_yticklabels(labels)
 
         fig = plt.tight_layout()

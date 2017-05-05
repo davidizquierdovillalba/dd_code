@@ -11,20 +11,40 @@ from Useful_func import *
 #      FOLDERS and FILENAMES      #
 #                                 #
 ###################################
+Daniele = False
+David = True
 
-home = os.path.expanduser('~')+'/'              # current home folder (automatic)
-here = home + 'works/phd/dd_code/'      # folder where the code is
-LG_dir = home + 'LGalaxies/'  # LGalaxies code root folder
-LGout_dir = LG_dir + 'output/'                  # LGalaxies outputs folder
-AuxCode_dir = LG_dir + 'AuxCode/Python/'        # folder in which Bruno's useful python code is
+if(Daniele == True):
+	home = os.path.expanduser('~')+'/'              # current home folder (automatic)
+	here = home + 'works/phd/dd_code/'              # folder where the code is
+	LG_dir = home + 'LGalaxies/'                    # LGalaxies code root folder
+	LGout_dir = LG_dir + 'output/'                  # LGalaxies outputs folder
+	AuxCode_dir = LG_dir + 'AuxCode/Python/'        # folder in which Bruno's useful python code is
 
-plots_dir = here + 'plots/'                     # directory to store plots made by this code
-if not os.path.exists(plots_dir):
-	os.makedirs(plots_dir)
+	plots_dir = here + 'plots/'                     # directory to store plots made by this code
+	if not os.path.exists(plots_dir):
+		os.makedirs(plots_dir)
 
-sys.path.append(AuxCode_dir + 'Misc/')          # import read_snap and read_tree functions
-from read_lgal import *
+	sys.path.append(AuxCode_dir + 'Misc/')          # import read_snap and read_tree functions
+	from read_lgal import *
 
+
+elif(David == True):
+	home = os.path.expanduser('~')+'/'              # current home folder (automatic)
+	here = home + '/Documentos/thesis/dd_code/'     # folder where the code is
+	LG_dir = home + 'Documentos/thesis/LGalaxies/'  # LGalaxies code root folder
+	LGout_dir = LG_dir + 'output/'                  # LGalaxies outputs folder
+	AuxCode_dir = LG_dir + 'AuxCode/Python/'        # folder in which Bruno's useful python code is
+	
+	plots_dir = here + 'plots/'                     # directory to store plots made by this code
+	if not os.path.exists(plots_dir):
+		os.makedirs(plots_dir)
+
+	sys.path.append(AuxCode_dir + 'Misc/')          # import read_snap and read_tree functions
+	from read_lgal import *
+
+else:
+	print 'Error: User not found in the Config.py'
 
 #################################
 #                               #
@@ -35,9 +55,9 @@ from read_lgal import *
 GALTREE = False          # if 'True' reads galtree mode outputs and structures
 MII = False              # if 'True' MII boxsize is used (see below)
 firstfile = 0            # first file to be used in analysis/plots
-lastfile = 11            # last file to be used in analysis/plots
+lastfile = 99            # last file to be used in analysis/plots
 zlist = [0, 1, 2, 3]     # redshift list to use/plot
-wtp = [5, 3]             # properties to plot on x and y axis respectively. Available quatities are:
+wtp = [0, 1]             # properties to plot on x and y axis respectively. Available quatities are:
                          # 0:BH Mass,  1:StellarMass,  2:Mvir,  3:Sfr,  4:BulgeMass,  5:DiskMass
 
 Plotlog = True           # if 'True' log-scale plots are produced
@@ -45,7 +65,7 @@ Factor10 = [True,True]   # if 'True' uses 1.**10 units in plots (x and y axis, r
 removeh =  False         # if 'True' plotted quantities are in "h-free" units (for data comparison)
 DMap_RES = 200           # Resolution (number of bins in each axis) for density maps (optimal: 100)
 
-sizebin = 0.1
+sizebin = 0.1		 # Size bin in MoL_func when Plotlog = True; otherwise other sizebin is automatically selected 
 
 
                 
@@ -56,10 +76,15 @@ sizebin = 0.1
 #            FILENAMES            #
 #                                 #
 ###################################
-dens_ns = plots_dir + Prop(wtp[0])+'_vs_'+Prop(wtp[1])+'density_plot.png'  # density plot name
-func_ns = plots_dir + Prop(wtp[0])+'_function.png'             # luminosity/mass function plot name
+png = True                               # How to save the plots: In png (png = True) or in pdf (png = False)
+if(png == True):
+	dens_ns = plots_dir + Prop(wtp[0])+'_vs_'+Prop(wtp[1])+'density_plot.png'  # density plot name
+	func_ns = plots_dir + Prop(wtp[0])+'_function.png'             		   # luminosity/mass function plot name
+else:
+	dens_ns = plots_dir + Prop(wtp[0])+'_vs_'+Prop(wtp[1])+'density_plot.pdf'  # density plot name
+	func_ns = plots_dir + Prop(wtp[0])+'_function.pdf'             		   # luminosity/mass function plot name
 
-fileprefx = get_prefix(GALTREE, MII)     # automatic file prefix. Always call with all keywords
+fileprefx = get_prefix(GALTREE, MII)                                       # automatic file prefix. Always call with all keywords
 
 
 
