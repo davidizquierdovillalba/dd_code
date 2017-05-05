@@ -14,6 +14,8 @@ from Useful_func import *
 home = os.path.expanduser('~')+'/'
 user = home[12:-1]
 
+# new things
+
 if(user == 'dspinoso'):
 	here = home + 'works/phd/dd_code/'              # folder where the code is
 	LG_dir = home + 'LGalaxies/'                    # LGalaxies code root folder
