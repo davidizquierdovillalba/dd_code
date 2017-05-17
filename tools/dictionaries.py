@@ -1,14 +1,38 @@
 import numpy as np
 
-def zdict(x):
-    vals = {
-        0 : '0.00',
-        1 : '1.04',
-        2 : '2.07',
-        3 : '3.11'
-    }.get(x, ' ')
+
+def zdict(x, mill2):
+    if mill2 == True:
+        vals = {
+            0.0 : '0.00',
+            0.5 : '0.51',
+            1.0 : '1.04',
+            1.5 : '1.48',
+            2.0 : '2.07',
+            2.5 : '2.44',
+            3.0 : '3.11',
+            3.5 : '3.37',
+            4.0 : '3.95',
+            4.5 : '4.64',
+            5.0 : '5.03',
+            5.5 : '5.46',
+            6.0 : '5.92',
+            6.5 : '6.42',
+            7.0 : '6.97',
+            7.5 : '7.57',
+            8.0 : '8.22',
+            9.0 : '8.93',
+            10.0 : '9.72'
+        }.get(x, ' ')
+    else:
+        vals = {
+            0.0 : '0.00',
+            1.0 : '1.04',
+            2.0 : '2.07',
+            3.0 : '3.11'
+        }.get(x, ' ')
     if vals == ' ' :
-        raise ValueError("Invalid redshift value: %s. You may want to add it in the dictionary"%x)
+        raise ValueError("Unknown redshift value: %s. You may want to add it in the dictionary"%x)
     return vals
 
     

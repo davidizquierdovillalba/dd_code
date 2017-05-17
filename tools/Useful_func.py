@@ -32,16 +32,43 @@ def hist(values,sizebins):
 
 
 
-def get_prefix(gltree, mill2):
+def get_prefix(gltree, mill2, seed):
     if gltree == True:
 	pfx = 'SA_galtree_'
     elif mill2 == True:
-	pfx = 'SA_MII__z'
+	pfx = 'SA_MII_BHseed1e3_z'#'SA_MII__z'
     else:
         pfx = 'SA_z'
     return pfx
 
 
+
+def read_LG_inParamFile(inputs, z_list, ptr):
+    params = {}
+    
+    #extract info from input parameter file
+    f = open(inputs, 'r')
+    lines = f.readlines()
+    f.close()
+    for s in ptr:
+        for i in range(len(lines)):
+            if s in lines[i] and s != 'FileNameGalaxies':
+                if s != 'BlackHoleSeedMass':
+                    params[s] = int(lines[i].split()[1])
+                else:
+                    params[s] = float(lines[i].split()[1])
+            if s in lines[i] and s == 'FileNameGalaxies':
+                params[s] = lines[i].split()[1]+'_z'
+    #extract info from redshift list (without importing numpy)
+    f = open(z_list, 'r')
+    params['zlist'] = [float(i) for i in f.read().split()]
+    f.close()
+
+    return params
+
+
+
+    
 def get_sb(macs, minim):
     szbin = 1/20
     szbin = (macs - minim)*szbin

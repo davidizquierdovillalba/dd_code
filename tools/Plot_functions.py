@@ -14,10 +14,11 @@ def PvsP_densityplot():
         P1 = Prop(wtp[0])    # property to be plotted on x-axis
         P2 = Prop(wtp[1])    # property to be plotted on y-axis
         
-        print '###########################################################################'
-        print '    The redshifts that are going to be used are:', zlist
-        print '    Properties:', P1, 'vs', P2
-        print '############################################################################'
+        print '\n###########################################################################\n'
+        print '    PLOT:  ', P1, 'vs', P2
+        print '    Redshifts used in plots:', ztoplot
+        print '    Output prefix:', LGparams['FileNameGalaxies']
+        print '\n############################################################################\n'
 
         Plotlog = True    # to be removed?
         nx = Labels(wtp[0],Plotlog,removeh)
@@ -27,19 +28,19 @@ def PvsP_densityplot():
         f, axarr = plt.subplots(2, 2, figsize = (12,8))
 
         if(GALTREE == True):
-                a = read_tree(LGout_dir,fileprefx,firstfile,lastfile,PropertiesToRead_tree,LGalaxiesStruct)
+                a = read_tree(LGout_dir,LGparams['FileNameGalaxies'],LGparams['FirstFile'],LGparams['LastFile'],PropertiesToRead_tree,LGalaxiesStruct)
                 gg = a[1]
                 del a
-        maximX = np.empty(len(zlist))
-        maximY = np.empty(len(zlist))
-        minimX = np.empty(len(zlist))
-        minimY = np.empty(len(zlist))
+        maximX = np.empty(len(ztoplot))
+        maximY = np.empty(len(ztoplot))
+        minimX = np.empty(len(ztoplot))
+        minimY = np.empty(len(ztoplot))
 
-        for i in zlist:
+        for i in ztoplot:
                 if(GALTREE == False):
 
-			filepref = fileprefx + np.str(zdict(i))
-                        a = read_snap(LGout_dir,filepref,firstfile,lastfile,PropertiesToRead,LGalaxiesStruct)
+			filepref = LGparams['FileNameGalaxies'] + np.str(zdict(i, MII))
+                        a = read_snap(LGout_dir,filepref,LGparams['FirstFile'],LGparams['LastFile'],PropertiesToRead,LGalaxiesStruct)
                         gg = a[3]
                         p1 = gg[P1]
                         p2 = gg[P2]
@@ -86,28 +87,28 @@ def PvsP_densityplot():
 
 
 		H , y, x = np.histogram2d(p2,p1,bins = DMap_RES, normed = True)
-		d = axarr[row[i],col[i]].pcolor(x, y, H, norm = colors.LogNorm(),cmap='jet', label = '$z$ = ' + zdict(i))
+		d = axarr[row[j],col[j]].pcolor(x, y, H, norm = colors.LogNorm(),cmap='jet', label = '$z$ = ' + zdict(i, MII))
 		d.set_clim(vmin=0.01, vmax=2)
-		if(row[i] == 1 and col[i]==1):
+		if(row[j] == 1 and col[j]==1):
 			position=f.add_axes([0.90,0.12,0.02,0.75])
 			f.colorbar(d,cax=position, label = 'N/$\mathrm{N_{max}}$')
-		leg = axarr[row[i],col[i]].legend(loc = 'lower right',fontsize = 18, handlelength=0, handletextpad=0, fancybox=True)
+		leg = axarr[row[j],col[j]].legend(loc = 'lower right',fontsize = 18, handlelength=0, handletextpad=0, fancybox=True)
 		for item in leg.legendHandles:
     			item.set_visible(False)
 
-                maximX[i] = max(p1)
-                minimX[i] = min(p1)
-                maximY[i] = max(p2)
-                minimY[i] = min(p2)
+                maximX[j] = max(p1)
+                minimX[j] = min(p1)
+                maximY[j] = max(p2)
+                minimY[j] = min(p2)
 
-                if(row[i] == 0):
-                        axarr[row[i],col[i]].set_xticklabels([''])
-                if(col[i]>0):
-                        axarr[row[i],col[i]].set_yticklabels([''])
+                if(row[j] == 0):
+                        axarr[row[j],col[j]].set_xticklabels([''])
+                if(col[j]>0):
+                        axarr[row[j],col[j]].set_yticklabels([''])
 
-	for i in zlist:
-		axarr[row[i],col[i]].set_ylim(min(minimY),max(maximY))
-                axarr[row[i],col[i]].set_xlim(min(minimX),max(maximX))
+	for i in ztoplot:
+		axarr[row[j],col[j]].set_ylim(min(minimY),max(maximY))
+                axarr[row[j],col[j]].set_xlim(min(minimX),max(maximX))
         f.canvas.draw()
         labels = [item.get_text() for item in axarr[1,0].get_xticklabels()]
         labels[-1] = ' '
@@ -132,29 +133,35 @@ def PvsP_densityplot():
 def MoL_func():
         P1 = Prop(wtp[0])    # property to be used for luminosity/mass function
         
+        print '\n###########################################################################\n'
+        print '    PLOT:  ', P1, ' function'
+        print '    Redshifts used in plots:', ztoplot
+        print '    Output prefix:', LGparams['FileNameGalaxies']
+        print '\n############################################################################\n'
+        
 	nx, ny = MoL_labels(wtp[0],Plotlog,removeh)
 
         if(GALTREE == True):
-                a = read_tree(LGout_dir,fileprefx,firstfile,lastfile,PropertiesToRead_tree,LGalaxiesStruct)
+                a = read_tree(LGout_dir,LGparams['FileNameGalaxies'],LGparams['FirstFile'],LGparams['LastFile'],PropertiesToRead_tree,LGalaxiesStruct)
                 gg = a[1]
 
         if(removeh == True):
-                Volume = ((BoxSize/cosmo.h)**3.0) * (lastfile - firstfile + 1) / MaxTreeFiles # Mpc^3
+                Volume = ((BoxSize/cosmo.h)**3.0) * (LGparams['LastFile'] - LGparams['FirstFile'] + 1) / MaxTreeFiles # Mpc^3
         else:
-                Volume = (BoxSize**3.0) * (lastfile - firstfile + 1) / MaxTreeFiles # Mpc^3 h^-3
+                Volume = (BoxSize**3.0) * (LGparams['LastFile'] - LGparams['FirstFile'] + 1) / MaxTreeFiles # Mpc^3 h^-3
 
         row = [0,0,1,1]
         col = [0,1,0,1]
         f, axarr = plt.subplots(2, 2, figsize = (12,8))
-        maximX = np.empty(len(zlist))
-        maximY = np.empty(len(zlist))
-        minimX = np.empty(len(zlist))
-        minimY = np.empty(len(zlist))
+        maximX = np.empty(len(ztoplot))
+        maximY = np.empty(len(ztoplot))
+        minimX = np.empty(len(ztoplot))
+        minimY = np.empty(len(ztoplot))
 
-	for i in zlist:
+	for i, j in zip(ztoplot, range(len(ztoplot))):
                 if(GALTREE == False):
-			filepref = fileprefx + np.str(zdict(i))
-                        a = read_snap(LGout_dir,filepref,firstfile,lastfile,PropertiesToRead,LGalaxiesStruct)
+			filepref = LGparams['FileNameGalaxies'] + np.str(zdict(i, MII))
+                        a = read_snap(LGout_dir,filepref,LGparams['FirstFile'],LGparams['LastFile'],PropertiesToRead,LGalaxiesStruct)
                         gg = a[3]
 
                         if(Factor10[0] == True):
@@ -201,26 +208,26 @@ def MoL_func():
                 pp_c, phi = hist(pp,sb)
                 phi = phi/(Volume * sb)
 
-                maximX[i] = max(pp_c)
-                minimX[i] = min(pp_c)
-                maximY[i] = max(phi)
-                minimY[i] = min(phi)
+                maximX[j] = max(pp_c)
+                minimX[j] = min(pp_c)
+                maximY[j] = max(phi)
+                minimY[j] = min(phi)
                 
-                axarr[row[i],col[i]].plot(pp_c,phi,color='red', linewidth=2, label = '$z$ = ' + zdict(i))
-                axarr[row[i],col[i]].set_yscale('log')
+                axarr[row[j],col[j]].plot(pp_c,phi,color='red', linewidth=2, label = '$z$ = ' + zdict(i, MII))
+                axarr[row[j],col[j]].set_yscale('log')
 
-		leg = axarr[row[i],col[i]].legend(loc = 'upper right',fontsize = 18, handlelength=0, handletextpad=0, fancybox=True)
+		leg = axarr[row[j],col[j]].legend(loc = 'upper right',fontsize = 18, handlelength=0, handletextpad=0, fancybox=True)
                 for item in leg.legendHandles:
                         item.set_visible(False)		
 
-                if(row[i] == 0):
-                        axarr[row[i],col[i]].set_xticklabels([''])
-                if(col[i]>0):
-                        axarr[row[i],col[i]].set_yticklabels([''])
+                if(row[j] == 0):
+                        axarr[row[j],col[j]].set_xticklabels([''])
+                if(col[j]>0):
+                        axarr[row[j],col[j]].set_yticklabels([''])
 
-	for i in zlist:
-		axarr[row[i],col[i]].set_ylim(0.9*min(minimY), 1.1*max(maximY))
-                axarr[row[i],col[i]].set_xlim(min(minimX),max(maximX))
+	for i in ztoplot:
+		axarr[row[j],col[j]].set_ylim(0.9*min(minimY), 1.1*max(maximY))
+                axarr[row[j],col[j]].set_xlim(min(minimX),max(maximX))
 
 	f.canvas.draw()
         labels = [item.get_text() for item in axarr[1,0].get_xticklabels()]
