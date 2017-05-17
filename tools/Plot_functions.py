@@ -211,8 +211,8 @@ def MoL_func():
 
                 maximX[j] = max(pp_c)
                 minimX[j] = min(pp_c)
-                maximY[j] = max(phi)
-                minimY[j] = min(phi)
+                maximY[j] = max(phi[phi!=0])
+                minimY[j] = min(phi[phi!=0])
                 
                 axarr[row[j],col[j]].plot(pp_c,phi,color='red', linewidth=2, label = '$z$ = ' + zdict(i, MII))
                 axarr[row[j],col[j]].set_yscale('log')
@@ -226,9 +226,11 @@ def MoL_func():
                 if(col[j]>0):
                         axarr[row[j],col[j]].set_yticklabels([''])
 
+
+
         for i in np.arange(0,len(ztoplot),1):
-                axarr[row[i],col[i]].set_ylim(0.0001,0.1)
                 axarr[row[i],col[i]].set_xlim(min(minimX),max(maximX))
+                axarr[row[i],col[i]].set_ylim(5*min(minimY),1.15*max(maximY)) # Check the factor 5
 
 	f.canvas.draw()
         labels = [item.get_text() for item in axarr[1,0].get_xticklabels()]
