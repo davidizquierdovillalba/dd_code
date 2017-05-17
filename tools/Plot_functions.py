@@ -36,7 +36,8 @@ def PvsP_densityplot():
         minimX = np.empty(len(ztoplot))
         minimY = np.empty(len(ztoplot))
 
-        for i in ztoplot:
+        for i,j in zip(ztoplot,np.arange(0,len(ztoplot),1)):
+
                 if(GALTREE == False):
 
 			filepref = LGparams['FileNameGalaxies'] + np.str(zdict(i, MII))
@@ -106,9 +107,9 @@ def PvsP_densityplot():
                 if(col[j]>0):
                         axarr[row[j],col[j]].set_yticklabels([''])
 
-	for i in ztoplot:
-		axarr[row[j],col[j]].set_ylim(min(minimY),max(maximY))
-                axarr[row[j],col[j]].set_xlim(min(minimX),max(maximX))
+	for i in np.arange(0,len(ztoplot),1):
+		axarr[row[i],col[i]].set_ylim(min(minimY),max(maximY))
+                axarr[row[i],col[i]].set_xlim(min(minimX),max(maximX))
         f.canvas.draw()
         labels = [item.get_text() for item in axarr[1,0].get_xticklabels()]
         labels[-1] = ' '
@@ -158,7 +159,7 @@ def MoL_func():
         minimX = np.empty(len(ztoplot))
         minimY = np.empty(len(ztoplot))
 
-	for i, j in zip(ztoplot, range(len(ztoplot))):
+	for i,j in zip(ztoplot,np.arange(0,len(ztoplot),1)):
                 if(GALTREE == False):
 			filepref = LGparams['FileNameGalaxies'] + np.str(zdict(i, MII))
                         a = read_snap(LGout_dir,filepref,LGparams['FirstFile'],LGparams['LastFile'],PropertiesToRead,LGalaxiesStruct)
@@ -225,9 +226,9 @@ def MoL_func():
                 if(col[j]>0):
                         axarr[row[j],col[j]].set_yticklabels([''])
 
-	for i in ztoplot:
-		axarr[row[j],col[j]].set_ylim(0.9*min(minimY), 1.1*max(maximY))
-                axarr[row[j],col[j]].set_xlim(min(minimX),max(maximX))
+        for i in np.arange(0,len(ztoplot),1):
+                axarr[row[i],col[i]].set_ylim(0.0001,0.1)
+                axarr[row[i],col[i]].set_xlim(min(minimX),max(maximX))
 
 	f.canvas.draw()
         labels = [item.get_text() for item in axarr[1,0].get_xticklabels()]

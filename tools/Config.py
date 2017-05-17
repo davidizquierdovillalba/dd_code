@@ -14,9 +14,9 @@ from Useful_func import *
 
 
 GALTREE = False          # if 'True' reads galtree mode outputs and structures
-MII = True               # if 'True' MII boxsize is used (see below)
+MII = False              # if 'True' MII boxsize is used (see below)
 wtp = [0, 1]             # properties to plot on x and y axis respectively. Available quatities are:  0:BH Mass,  1:StellarMass,  2:Mvir,  3:Sfr,  4:BulgeMass,  5:DiskMass
-ztoplot = [0, 1, 2.5, 6] # list of 4 redshift to be plotted (ONLY 4!!!!!)
+ztoplot = [0,1,2,3] # list of 4 redshift to be plotted (ONLY 4!!!!!)
 
 params_to_read = ['FileNameGalaxies', 'FirstFile', 'LastFile', 'BlackHoleSeedMass']
                          
@@ -51,11 +51,17 @@ if(user == 'dspinoso'):
 elif(user == 'dizquierdo'):
 	here = home + '/Documentos/thesis/dd_code/'     # folder where the code is
 	LG_dir = home + 'Documentos/thesis/LGalaxies/'  # LGalaxies code root folder
+	if MII == True:
+                LG_inParFile = LG_dir + 'input/input_Henriques15_MR_W1_PLANCK.par'
+        else:
+                LG_inParFile = LG_dir + 'input/david_prueba.par'#input_Henriques15_MRII_W1_PLANCK.par'
+        LG_output_z = LG_dir + 'input/david_redshift.txt'
+
         
 else:
 	print 'Error: User not found in the Config.py'
 
-LGout_dir = LG_dir + 'output/'                  # LGalaxies outputs folder
+LGout_dir = LG_dir + 'output/MR/'                  # LGalaxies outputs folder
 AuxCode_dir = LG_dir + 'AuxCode/Python/'        # folder in which Bruno's useful python code is
 
 plots_dir = here + 'plots/'                     # directory to store plots made by this code
@@ -67,7 +73,7 @@ from read_lgal import *
 
 
 LGparams = read_LG_inParamFile(LG_inParFile, LG_output_z, params_to_read)
-
+#LGparams['LastFile'] = 1 # Comment this
                 
 
 
