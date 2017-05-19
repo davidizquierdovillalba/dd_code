@@ -1,14 +1,35 @@
 import matplotlib.colors as colors
 import pylab as plt
+import matplotlib.lines as mlines
+
 from Config import *
 plt.rc('xtick', labelsize=17)
 plt.rc('ytick', labelsize=17)
-
 from dictionaries import *
 from Useful_func import *
 
+def get_outFolder_names():
+        if plot_last_run == True:
+                out_LGfiles_dir = LGparams['OutputDir']
+        else:
+                os.chdir(LGout_dir)
+                os.system('ls -1d */ > out_folders_list.txt')
+                os.chdir(here)
+                fold_names = np.loadtxt(LGout_dir+'out_folders_list.txt', dtype=np.str)
+                print 'Output folders available for plots:\n', fold_names
+                fold_mask = []
+                for i in fold_names:
+                        a = raw_input('Plot files from  '+i+'  folder? (1=selection, 0=no):\n')
+                        fold_mask.append(int(a))
+                fold_mask = np.array(fold_mask, dtype=bool)
+                out_LGfiles_dir = []
+                for i in fold_names[fold_mask]:
+                        out_LGfiles_dir.append(LGout_dir + i)
+                out_LGfiles_dir = np.array(out_LGfiles_dir, dtype=np.str)
 
-
+        return out_LGfiles_dir
+      
+        
 def PvsP_densityplot():
 
         P1 = Prop(wtp[0])    # property to be plotted on x-axis
@@ -28,7 +49,7 @@ def PvsP_densityplot():
         f, axarr = plt.subplots(2, 2, figsize = (12,8))
 
         if(GALTREE == True):
-                a = read_tree(LGout_dir,LGparams['FileNameGalaxies'],LGparams['FirstFile'],LGparams['LastFile'],PropertiesToRead_tree,LGalaxiesStruct)
+                a = read_tree(out_LGfiles_dir,LGparams['FileNameGalaxies'],LGparams['FirstFile'],LGparams['LastFile'],PropertiesToRead_tree,LGalaxiesStruct)
                 gg = a[1]
                 del a
         maximX = np.empty(len(ztoplot))
@@ -41,7 +62,7 @@ def PvsP_densityplot():
                 if(GALTREE == False):
 
 			filepref = LGparams['FileNameGalaxies'] + np.str(zdict(i, MII))
-                        a = read_snap(LGout_dir,filepref,LGparams['FirstFile'],LGparams['LastFile'],PropertiesToRead,LGalaxiesStruct)
+                        a = read_snap(out_LGfiles_dir,filepref,LGparams['FirstFile'],LGparams['LastFile'],PropertiesToRead,LGalaxiesStruct)
                         gg = a[3]
                         p1 = gg[P1]
                         p2 = gg[P2]
@@ -139,116 +160,136 @@ def MoL_func():
         print '    Redshifts used in plots:', ztoplot
         print '    Output prefix:', LGparams['FileNameGalaxies']
         print '\n############################################################################\n'
+
+	Folders_to_do = get_outFolder_names() # Files we have to plot
         
 	nx, ny = MoL_labels(wtp[0],Plotlog,removeh)
+	
+	maximX = np.empty((len(Folders_to_do),len(ztoplot)))
+	minimX = np.empty((len(Folders_to_do),len(ztoplot)))
+	maximY = np.empty((len(Folders_to_do),len(ztoplot)))
+	minimY = np.empty((len(Folders_to_do),len(ztoplot)))
+	f, axarr = plt.subplots(2, 2, figsize = (12,8))
+	row = [0,0,1,1]
+	col = [0,1,0,1]
+	sfcol = plt.cm.YlGnBu(np.linspace(0.2,0.9,len(Folders_to_do)))
+        seedMasses = []
+        handles = []
 
-        if(GALTREE == True):
-                a = read_tree(LGout_dir,LGparams['FileNameGalaxies'],LGparams['FirstFile'],LGparams['LastFile'],PropertiesToRead_tree,LGalaxiesStruct)
-                gg = a[1]
 
-        if(removeh == True):
-                Volume = ((BoxSize/cosmo.h)**3.0) * (LGparams['LastFile'] - LGparams['FirstFile'] + 1) / MaxTreeFiles # Mpc^3
-        else:
-                Volume = (BoxSize**3.0) * (LGparams['LastFile'] - LGparams['FirstFile'] + 1) / MaxTreeFiles # Mpc^3 h^-3
+	for nams,kk in zip(Folders_to_do, range(len(Folders_to_do))):
+                loc_parFile = nams + LG_inParFile[LG_inParFile.find('input/input')+6:]
+                LGparams_loc = read_LG_inParamFile(loc_parFile, LG_output_z, params_to_read)
+                seedMasses.append(str(LGparams_loc['BlackHoleSeedMass']))
+		if(GALTREE == True):
+			a = read_tree(nams,LGparams_loc['FileNameGalaxies'],LGparams_loc['FirstFile'],LGparams_loc['LastFile'],PropertiesToRead_tree,LGalaxiesStruct)
+			gg = a[1]
 
-        row = [0,0,1,1]
-        col = [0,1,0,1]
-        f, axarr = plt.subplots(2, 2, figsize = (12,8))
-        maximX = np.empty(len(ztoplot))
-        maximY = np.empty(len(ztoplot))
-        minimX = np.empty(len(ztoplot))
-        minimY = np.empty(len(ztoplot))
+		if(removeh == True):
+			Volume = ((BoxSize/cosmo.h)**3.0) * (LGparams_loc['LastFile'] - LGparams_loc['FirstFile'] + 1) / MaxTreeFiles # Mpc^3
+		else:
+			Volume = (BoxSize**3.0) * (LGparams_loc['LastFile'] - LGparams_loc['FirstFile'] + 1) / MaxTreeFiles # Mpc^3 h^-3
 
-	for i,j in zip(ztoplot,np.arange(0,len(ztoplot),1)):
-                if(GALTREE == False):
-			filepref = LGparams['FileNameGalaxies'] + np.str(zdict(i, MII))
-                        a = read_snap(LGout_dir,filepref,LGparams['FirstFile'],LGparams['LastFile'],PropertiesToRead,LGalaxiesStruct)
-                        gg = a[3]
 
-                        if(Factor10[0] == True):
-                                if(Plotlog == True):
-                                        pp = (10+ np.log10(gg[np.where(gg[P1]>0)][P1]))
-                                else:
-                                        pp = gg[np.where(gg[P1]>0)][P1] * 1.**10
-                        else:
-                                if(Plotlog == True):
-                                        pp = np.log10(gg[np.where(gg[P1]>0)][P1])
-                                else:
-                                        pp = gg[np.where(gg[P1]>0)][P1]
+		for i,j in zip(ztoplot,np.arange(0,len(ztoplot),1)):
+			if(GALTREE == False):
+				filepref = LGparams_loc['FileNameGalaxies'] + np.str(zdict(i, MII))
+				a = read_snap(nams,filepref,LGparams_loc['FirstFile'],LGparams_loc['LastFile'],PropertiesToRead,LGalaxiesStruct)
+				gg = a[3]
 
-                        if(removeh == True):
-                                if(Plotlog == True):
-                                        pp = pp - np.log10(cosmo.h)
-                                else:
-                                        pp = pp/cosmo.h
-
-                else:
-                        _select = np.where((gg['SnapNum'] == snapdict(i)) & (gg[P1]>0))
-
-                        if(Factor10[0] == True):
-				if(Plotlog == True):
-                                	pp = (10+ np.log10(gg[_select][P1]))
+				if(Factor10[0] == True):
+					if(Plotlog == True):
+						pp = (10+ np.log10(gg[np.where(gg[P1]>0)][P1]))
+					else:
+						pp = gg[np.where(gg[P1]>0)][P1] * 1.**10
 				else:
-                                	pp = gg[_select][P1] * 1.**10
-                        else:
-				if(Plotlog == True):
-                                	pp = np.log10(gg[_select][P1])
+					if(Plotlog == True):
+						pp = np.log10(gg[np.where(gg[P1]>0)][P1])
+					else:
+						pp = gg[np.where(gg[P1]>0)][P1]
+
+				if(removeh == True):
+					if(Plotlog == True):
+						pp = pp - np.log10(cosmo.h)
+					else:
+						pp = pp/cosmo.h
+
+			else:
+				_select = np.where((gg['SnapNum'] == snapdict(i)) & (gg[P1]>0))
+
+				if(Factor10[0] == True):
+					if(Plotlog == True):
+						pp = (10+ np.log10(gg[_select][P1]))
+					else:
+						pp = gg[_select][P1] * 1.**10
 				else:
-                                	pp = gg[_select][P1] 
+					if(Plotlog == True):
+						pp = np.log10(gg[_select][P1])
+					else:
+						pp = gg[_select][P1] 
 
-                        if(removeh == True):
-                                if(Plotlog == True):
-					pp = pp - np.log10(cosmo.h)
-				else:
-					pp = pp/cosmo.h
+				if(removeh == True):
+					if(Plotlog == True):
+						pp = pp - np.log10(cosmo.h)
+					else:
+						pp = pp/cosmo.h
 
-                if Plotlog == False:
-                        sb = get_sb(max(pp), min(pp))
-                else:
-                        sb = sizebin
-                pp_c, phi = hist(pp,sb)
-                phi = phi/(Volume * sb)
+			if Plotlog == False:
+				sb = get_sb(max(pp), min(pp))
+			else:
+				sb = sizebin
+			pp_c, phi = hist(pp,sb)
+			phi = phi/(Volume * sb)
+			maximX[kk,j] = max(pp_c[pp_c > 0])
+			minimX[kk,j] = min(pp_c[pp_c > 0])
+			maximY[kk,j] = max(phi[phi != 0])
+			minimY[kk,j] = min(phi[phi != 0])
+			
+			axarr[row[j],col[j]].plot(pp_c,phi,color = sfcol[kk], linewidth=2, label = '$z$ = ' + zdict(i, MII))
+			axarr[row[j],col[j]].set_yscale('log')
 
-                maximX[j] = max(pp_c)
-                minimX[j] = min(pp_c)
-                maximY[j] = max(phi[phi!=0])
-                minimY[j] = min(phi[phi!=0])
+			if(kk == 0):
+                                leg = axarr[row[j],col[j]].legend(loc = 'upper left',fontsize = 18, handlelength=0, handletextpad=0, fancybox=True)
+                                for item in leg.legendHandles:
+                                        item.set_visible(False)
+                                if (row[j] == 0) and (col[j] == 0):
+                                        axarr[row[j],col[j]].add_artist(leg)
+                                        
+                                        
+                        if(row[j] == 0):
+                                axarr[row[j],col[j]].set_xticklabels([''])
+                        if(col[j]>0):
+                                axarr[row[j],col[j]].set_yticklabels([''])
+
+
+	for i in np.arange(0,len(ztoplot),1):
+                axarr[row[i],col[i]].set_xlim( np.min(np.min(minimX, axis=1), axis=0), np.max(np.max(maximX, axis=1), axis=0) )
+                axarr[row[i],col[i]].set_ylim(2*np.min(np.min(minimY, axis=1), axis=0), 1.15*np.max(np.max(maximY, axis=1), axis=0) ) # Check the factor 5
+
+        seedMasses = np.array(seedMasses)
+        for kk in range(len(seedMasses)):
+                c = mlines.Line2D([], [], color=sfcol[kk], linestyle = '-', linewidth = 2, label = 'seed M = %2.1e'%float(seedMasses[kk]))
+                handles.append(c)
+        labels = [h.get_label() for h in handles]
+        #axarr[row[0],col[0]].legend(handles, labels, bbox_to_anchor=(1.55, 0.85),loc = "upper right", fontsize = 11)
+        axarr[row[0],col[0]].legend(handles, labels, loc = "upper right", fontsize = 11)
                 
-                axarr[row[j],col[j]].plot(pp_c,phi,color='red', linewidth=2, label = '$z$ = ' + zdict(i, MII))
-                axarr[row[j],col[j]].set_yscale('log')
-
-		leg = axarr[row[j],col[j]].legend(loc = 'upper right',fontsize = 18, handlelength=0, handletextpad=0, fancybox=True)
-                for item in leg.legendHandles:
-                        item.set_visible(False)		
-
-                if(row[j] == 0):
-                        axarr[row[j],col[j]].set_xticklabels([''])
-                if(col[j]>0):
-                        axarr[row[j],col[j]].set_yticklabels([''])
-
-
-
-        for i in np.arange(0,len(ztoplot),1):
-                axarr[row[i],col[i]].set_xlim(min(minimX),max(maximX))
-                axarr[row[i],col[i]].set_ylim(5*min(minimY),1.15*max(maximY)) # Check the factor 5
-
 	f.canvas.draw()
-        labels = [item.get_text() for item in axarr[1,0].get_xticklabels()]
-        labels[-1] = ' '
-        axarr[1,0].set_xticklabels(labels)
-        labels = [item.get_text() for item in axarr[0,0].get_yticklabels()]
-        labels[-1] = ' '
-        axarr[0,0].set_yticklabels(labels)
+	labels = [item.get_text() for item in axarr[1,0].get_xticklabels()]
+	labels[-1] = ' '
+	axarr[1,0].set_xticklabels(labels)
+	labels = [item.get_text() for item in axarr[0,0].get_yticklabels()]
+	labels[-1] = ' '
+	axarr[0,0].set_yticklabels(labels)
 
-        fig = plt.tight_layout()
-        f.subplots_adjust(wspace=0)
-        f.subplots_adjust(hspace=0.0)
-        f.subplots_adjust(left=0.11)
-        f.subplots_adjust(bottom=0.09)
-        f.text(0.0175, 0.5, ny, va='center', rotation='vertical', fontsize = 22)
-        f.text(0.45, 0.025, nx, va='center', rotation='horizontal', fontsize = 22)
-        plt.savefig(func_ns)
-        plt.show()
-
+	fig = plt.tight_layout()
+	f.subplots_adjust(wspace=0)
+	f.subplots_adjust(hspace=0.0)
+	f.subplots_adjust(left=0.11)
+	f.subplots_adjust(bottom=0.09)
+	f.text(0.0175, 0.5, ny, va='center', rotation='vertical', fontsize = 22)
+	f.text(0.45, 0.025, nx, va='center', rotation='horizontal', fontsize = 22)
+	plt.savefig(func_ns)
+	plt.show()
 
 

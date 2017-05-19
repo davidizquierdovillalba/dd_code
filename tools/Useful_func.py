@@ -52,13 +52,15 @@ def read_LG_inParamFile(inputs, z_list, ptr):
     f.close()
     for s in ptr:
         for i in range(len(lines)):
-            if s in lines[i] and s != 'FileNameGalaxies':
+            if s in lines[i] and s != 'FileNameGalaxies' and s != 'OutputDir':
                 if s != 'BlackHoleSeedMass':
                     params[s] = int(lines[i].split()[1])
                 else:
                     params[s] = float(lines[i].split()[1])
             if s in lines[i] and s == 'FileNameGalaxies':
                 params[s] = lines[i].split()[1]+'_z'
+            if s in lines[i] and s == 'OutputDir':
+                params[s] = lines[i].split()[1]
     #extract info from redshift list (without importing numpy)
     f = open(z_list, 'r')
     params['zlist'] = [float(i) for i in f.read().split()]
