@@ -172,7 +172,7 @@ def MoL_func():
 	f, axarr = plt.subplots(2, 2, figsize = (12,8))
 	row = [0,0,1,1]
 	col = [0,1,0,1]
-	sfcol = plt.cm.YlGnBu(np.linspace(0.2,0.9,len(Folders_to_do)))
+	sfcol = plt.cm.jet(np.linspace(0.2,0.9,len(Folders_to_do)))
         seedMasses = []
         handles = []
 
@@ -238,6 +238,7 @@ def MoL_func():
 				sb = get_sb(max(pp), min(pp))
 			else:
 				sb = sizebin
+
 			pp_c, phi = hist(pp,sb)
 			phi = phi/(Volume * sb)
 			maximX[kk,j] = max(pp_c[pp_c > 0])

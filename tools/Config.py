@@ -13,11 +13,11 @@ from Useful_func import *
 
 
 GALTREE = False          # if 'True' reads galtree mode outputs and structures
-MII = True              # if 'True' MII boxsize is used (see below)
+MII = False              # if 'True' MII boxsize is used (see below)
 wtp = [0, 1]             # properties to plot on x and y axis respectively. Available quatities are:  0:BH Mass,  1:StellarMass,  2:Mvir,  3:Sfr,  4:BulgeMass,  5:DiskMass
-ztoplot = [0,1,2.5,6] # list of 4 redshift to be plotted (ONLY 4!!!!!)
+ztoplot = [0,1,2,3] # list of 4 redshift to be plotted (ONLY 4!!!!!)
 
-params_to_read = ['FileNameGalaxies', 'FirstFile', 'LastFile', 'BlackHoleSeedMass', 'OutputDir']    # parameters/names to be read from LGalaxies input.par
+params_to_read = ['FileNameGalaxies', 'FirstFile', 'LastFile', 'BlackHoleSeedMass', 'AccretionModel', 'OutputDir']    # parameters/names to be read from LGalaxies input.par
 
 plot_last_run = False     # if 'True' output_dir name gets read from param_file variable (see below, section "RUN LGalaxies"
 fastcheck = False        # if 'True' plots only up to a fixed LastFile (see LGparams definition below)
@@ -51,16 +51,37 @@ if(user == 'dspinoso'):
                 final = 'MR/'
         LG_output_z = LG_dir + 'input/desired_output_redshifts_dani.txt'
 
+	#################################
+	#                               #
+	#        RUN LGalaxies          #
+	#                               #
+	#################################
+	
+	ptc = np.array(['BlackHoleSeedMass', 'AgnEfficiency','OutputDir'])  # run-dependent parameters to be written in the output folder name
+	ptc_alis = np.array(['seedM','eff'])              #parameter-alias to be written in the output folder name
+	par_changed = [1,0,1]   #The last one MUST be ALWAYS = 1
+
+
 elif(user == 'dizquierdo'):
 	here = home + '/Documentos/thesis/dd_code/'     # folder where the code is
 	LG_dir = home + 'Documentos/thesis/LGalaxies/'  # LGalaxies code root folder
 	if MII == True:
-                LG_inParFile = LG_dir + 'input/input_dani_MRII_W1_PLANCK.par'
+                LG_inParFile = LG_dir + 'input/input_david.par'
                 final = 'MRII/'
         else:
-                LG_inParFile = LG_dir + 'input/input_dani_MRII_W1_PLANCK.par'
+                LG_inParFile = LG_dir + 'input/input_david.par'
                 final = 'MR/'
         LG_output_z = LG_dir + 'input/david_redshift.txt'
+
+	#################################
+	#                               #
+	#        RUN LGalaxies          #
+	#                               #
+	#################################
+	
+	ptc = np.array(['BlackHoleSeedMass', 'AgnEfficiency', 'AccretionModel', 'OutputDir'])  # run-dependent parameters to be written in the output folder name
+	ptc_alis = np.array(['seedM','eff', 'accmod'])              #parameter-alias to be written in the output folder name
+	par_changed = [1,0,1,1]   #The last one MUST be ALWAYS = 1
         
 else:
 	print 'Error: User not found in the Config.py'
@@ -80,22 +101,6 @@ LGparams = read_LG_inParamFile(LG_inParFile, LG_output_z, params_to_read)
 if fastcheck == True:
         LGparams['LastFile'] = 1 # Comment this
 
-
-        
-
-
-#################################
-#                               #
-#        RUN LGalaxies          #
-#                               #
-#################################
-
-ptc = np.array(['BlackHoleSeedMass', 'AgnEfficiency', 'OutputDir'])  # run-dependent parameters to be written in the output folder name
-ptc_alis = np.array(['seedM','eff'])                       #parameter-alias to be written in the output folder name
-par_changed = [1,0,1]   #The last one MUST be ALWAYS = 1
-
-
-                
 
 
 ###################################

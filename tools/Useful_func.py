@@ -72,7 +72,7 @@ def read_LG_inParamFile(inputs, z_list, ptr):
 
     
 def get_sb(macs, minim):
-    szbin = 1/20
+    szbin = 1./20
     szbin = (macs - minim)*szbin
         
     return szbin
