@@ -13,17 +13,17 @@ from Useful_func import *
 
 
 GALTREE = False          # if 'True' reads galtree mode outputs and structures
-MII = False              # if 'True' MII boxsize is used (see below)
-wtp = [0, 1]             # properties to plot on x and y axis respectively. Available quatities are:  0:BH Mass,  1:StellarMass,  2:Mvir,  3:Sfr,  4:BulgeMass,  5:DiskMass
-ztoplot = [0,1,2,3] # list of 4 redshift to be plotted (ONLY 4!!!!!)
+MII = True              # if 'True' MII boxsize is used (see below)
+wtp = [6, 1]             # properties to plot on x and y axis respectively. Available quatities are:  0:BH Mass,  1:StellarMass,  2:Mvir,  3:Sfr,  4:BulgeMass,  5:DiskMass, 6:seedTime
+ztoplot = [0,1,2.5,6]     # list of 4 redshift to be plotted (ONLY 4!!!!!)
 
 params_to_read = ['FileNameGalaxies', 'FirstFile', 'LastFile', 'BlackHoleSeedMass', 'AccretionModel', 'OutputDir']    # parameters/names to be read from LGalaxies input.par
 
-plot_last_run = False     # if 'True' output_dir name gets read from param_file variable (see below, section "RUN LGalaxies"
+plot_last_run = False     # if 'True' output_dir name gets read from param_file variable (see below, section "RUN LGalaxies")
 fastcheck = False        # if 'True' plots only up to a fixed LastFile (see LGparams definition below)
-Plotlog = True           # if 'True' log-scale plots are produced
+Plotlog = False           # if 'True' log-scale plots are produced
 Factor10 = [True,True]   # if 'True' uses 1.**10 units in plots (x and y axis, respectively)
-removeh =  False         # if 'True' plotted quantities are in "h-free" units (for data comparison)
+removeh =  True         # if 'True' plotted quantities are in "h-free" units (for data comparison)
 DMap_RES = 200           # Resolution (number of bins in each axis) for density maps (optimal: 100)
 
 sizebin = 0.1		 # Size bin in MoL_func when Plotlog = True; otherwise other sizebin is automatically selected

@@ -43,6 +43,32 @@ def get_prefix(gltree, mill2, seed):
 
 
 
+def get_outFolder_names(plot_last_run, LGparams, LGout_dir, here):
+    import os
+    import numpy as np
+    if plot_last_run == True:
+        out_LGfiles_dir = LGparams['OutputDir']
+    else:
+        os.chdir(LGout_dir)
+        os.system('ls -1d */ > out_folders_list.txt')
+        os.chdir(here)
+        fold_names = np.loadtxt(LGout_dir+'out_folders_list.txt', dtype=np.str)
+        print 'Output folders available for plots:\n', fold_names
+        fold_mask = []
+        for i in fold_names:
+            a = raw_input('Plot files from  '+i+'  folder? (1=selection, 0=no):\n')
+            fold_mask.append(int(a))
+        fold_mask = np.array(fold_mask, dtype=bool)
+        out_LGfiles_dir = []
+        for i in fold_names[fold_mask]:
+            out_LGfiles_dir.append(LGout_dir + i)
+        out_LGfiles_dir = np.array(out_LGfiles_dir, dtype=np.str)
+
+    return out_LGfiles_dir
+
+
+
+
 def read_LG_inParamFile(inputs, z_list, ptr):
     params = {}
     

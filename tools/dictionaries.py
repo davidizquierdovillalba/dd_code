@@ -88,7 +88,9 @@ def Prop(x):
         2:'Mvir',
         3:'Sfr',
         4:'BulgeMass', 
-        5:'DiskMass'
+        5:'DiskMass',
+        6:'seedTime',
+        7:'QuasarLuminosity'
     }.get(x, ' ')
     if val == ' ':
         raise ValueError('Property %d not found'%x)
@@ -106,7 +108,8 @@ def Labels(x, log, noH):
                 2:r'$\mathrm{log_{10}\left(M_{vir}[M_{\odot}/h]\right)}$',
                 3:r'$\mathrm{log_{10}\left(Sfr[M_{\odot}/yr]\right)}$',
                 4:r'$\mathrm{log_{10}\left(M_{Bulge}[M_{\odot}/h]\right)}$',
-                5:r'$\mathrm{log_{10}\left(M_{Disk}[M_{\odot}/h]\right)}$'
+                5:r'$\mathrm{log_{10}\left(M_{Disk}[M_{\odot}/h]\right)}$',
+                6:r'$\mathrm{log_{10}\left(t_{seed}[Gyr]\right)}$'
             }.get(x, ' ')
         else:
             lab = {
@@ -115,7 +118,8 @@ def Labels(x, log, noH):
                 2:r'$\mathrm{log_{10}\left(M_{vir}[M_{\odot}]\right)}$',
                 3:r'$\mathrm{log_{10}\left(Sfr[M_{\odot}/yr]\right)}$',
                 4:r'$\mathrm{log_{10}\left(M_{Bulge}[M_{\odot}]\right)}$',
-                5:r'$\mathrm{log_{10}\left(M_{Disk}[M_{\odot}]\right)}$'
+                5:r'$\mathrm{log_{10}\left(M_{Disk}[M_{\odot}]\right)}$',
+                6:r'$\mathrm{log_{10}\left(t_{seed}[Gyr]\right)}$'
             }.get(x, ' ')
         
     else:
@@ -126,7 +130,8 @@ def Labels(x, log, noH):
                 2:r'$\mathrm{M_{vir}[M_{\odot}/h]}$',
                 3:r'$\mathrm{Sfr[M_{\odot}/yr]}$',
                 4:r'$\mathrm{M_{Bulge}[M_{\odot}/h]}$',
-                5:r'$\mathrm{M_{Disk}[M_{\odot}/h]}$'
+                5:r'$\mathrm{M_{Disk}[M_{\odot}/h]}$',
+                6:r'$\mathrm{t_{seed}[Gyr]}$'
             }.get(x, ' ')
         else:
             lab = {
@@ -135,7 +140,8 @@ def Labels(x, log, noH):
                 2:r'$\mathrm{M_{vir}[M_{\odot}]}$',
                 3:r'$\mathrm{Sfr[M_{\odot}/yr]}$',
                 4:r'$\mathrm{M_{Bulge}[M_{\odot}]}$',
-                5:r'$\mathrm{M_{Disk}[M_{\odot}]}$'
+                5:r'$\mathrm{M_{Disk}[M_{\odot}]}$',
+                6:r'$\mathrm{t_{seed}[Gyr]}$'
             }.get(x, ' ')
 
     if lab == ' ':
