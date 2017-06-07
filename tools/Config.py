@@ -13,19 +13,23 @@ from Useful_func import *
 
 
 GALTREE = False          # if 'True' reads galtree mode outputs and structures
-MII = True              # if 'True' MII boxsize is used (see below)
-wtp = [6, 1]             # properties to plot on x and y axis respectively. Available quatities are:  0:BH Mass,  1:StellarMass,  2:Mvir,  3:Sfr,  4:BulgeMass,  5:DiskMass, 6:seedTime
-ztoplot = [0,1,2.5,6]     # list of 4 redshift to be plotted (ONLY 4!!!!!)
-
+MII = False              # if 'True' MII boxsize is used (see below)
+wtp = [0, 0]             # properties to plot on x and y axis respectively. Available quatities are:  0:BH Mass,  1:StellarMass,  2:Mvir,  3:Sfr,  4:BulgeMass,  5:DiskMass, 6:seedTime
+ztoplot = [0,1,2,4]     # list of 4 redshift to be plotted (ONLY 4!!!!!)
 params_to_read = ['FileNameGalaxies', 'FirstFile', 'LastFile', 'BlackHoleSeedMass', 'AccretionModel', 'OutputDir']    # parameters/names to be read from LGalaxies input.par
 
+# Add data in the plots?
+plot_obs_data = True
+if(plot_obs_data == True):
+	Marconi2004 = True # Black hole mass function Marconi et al 2004 arxive: https://arxiv.org/pdf/astro-ph/0409542.pdf
+	Merloni2008 = False 
+		
 plot_last_run = False     # if 'True' output_dir name gets read from param_file variable (see below, section "RUN LGalaxies")
 fastcheck = False        # if 'True' plots only up to a fixed LastFile (see LGparams definition below)
-Plotlog = False           # if 'True' log-scale plots are produced
+Plotlog = True           # if 'True' log-scale plots are produced
 Factor10 = [True,True]   # if 'True' uses 1.**10 units in plots (x and y axis, respectively)
-removeh =  True         # if 'True' plotted quantities are in "h-free" units (for data comparison)
+removeh =  True        # if 'True' plotted quantities are in "h-free" units (for data comparison)
 DMap_RES = 200           # Resolution (number of bins in each axis) for density maps (optimal: 100)
-
 sizebin = 0.1		 # Size bin in MoL_func when Plotlog = True; otherwise other sizebin is automatically selected
 
 
@@ -50,6 +54,7 @@ if(user == 'dspinoso'):
                 LG_inParFile = LG_dir+'/input/input_dani_MR_W1_PLANCK.par'
                 final = 'MR/'
         LG_output_z = LG_dir + 'input/desired_output_redshifts_dani.txt'
+	data_Dir = '/home/CEFCA/dizquierdo/Documentos/thesis/data'
 
 	#################################
 	#                               #
@@ -72,6 +77,7 @@ elif(user == 'dizquierdo'):
                 LG_inParFile = LG_dir + 'input/input_david.par'
                 final = 'MR/'
         LG_output_z = LG_dir + 'input/david_redshift.txt'
+	data_Dir = '/home/CEFCA/dizquierdo/Documentos/thesis/data'
 
 	#################################
 	#                               #
@@ -157,7 +163,7 @@ if PLANCK:
 	if MII:
                 BoxSize  = 100. * 0.960558 #full MRII      
         else:
-                BoxSize  = 500. * 0.960558 #full MR
+                BoxSize  = 500. #* 0.960558 #full MR
 	Hubble_h      = 0.673
 	Omega_M       = 0.315 
 	Omega_Lambda  = 0.683
@@ -183,7 +189,3 @@ else:
 	from LGalaxies_tree_Henriques2015a_struct import PropertiesToRead_tree
 
 
-
-
-
-        
