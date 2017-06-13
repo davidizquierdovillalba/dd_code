@@ -115,7 +115,7 @@ def PvsP_densityplot():
 	for kk in range(len(seedMasses)):
 		c = mlines.Line2D([], [], color=sfcol[kk], linestyle = '-', linewidth = 2, label = 'BH seed = %2.1e'%float(seedMasses[kk]) + r'$\rm [M_{\odot}]$' ' Model ' + np.str(acc_Model[kk]))
 	handles.append(c)
-labels = [h.get_label() for h in handles]
+	labels = [h.get_label() for h in handles]
 
 	f.canvas.draw()
 	labels = [item.get_text() for item in axarr[1,0].get_xticklabels()]
@@ -428,17 +428,15 @@ def Quasar_LumFunction(): #Generate the quasars luminosity functions
         seedMasses = []
         acc_Model = []
         handles = []
+	legend_names = []
+        legData = []
 
         for nams,kk in zip(Folders_to_do, range(len(Folders_to_do))):
                 loc_parFile = nams + LG_inParFile[LG_inParFile.find('input/input')+6:]
                 LGparams_loc = read_LG_inParamFile(loc_parFile, LG_output_z, params_to_read)
                 seedMasses.append(str(LGparams_loc['BlackHoleSeedMass']))
                 acc_Model.append(str(LGparams_loc['AccretionModel']))
-
-                if(GALTREE == True):
-                        a = read_tree(nams,LGparams_loc['FileNameGalaxies'],LGparams_loc['FirstFile'],LGparams_loc['LastFile'],PropertiesToRead_tree,LGalaxiesStruct)
-                        gg = a[1]
-                        Volume = ((BoxSize/cosmo.h)**3.0) * (LGparams_loc['LastFile'] - LGparams_loc['FirstFile'] + 1) / MaxTreeFiles # Mpc^3
+		Volume = ((BoxSize/cosmo.h)**3.0) * (LGparams_loc['LastFile'] - LGparams_loc['FirstFile'] + 1) / MaxTreeFiles # Mpc^3
 
                 for i,j in zip(ztoplot,np.arange(0,len(ztoplot),1)):
 			filepref = LGparams_loc['FileNameGalaxies'] + np.str(zdict(i, MII))
@@ -451,7 +449,21 @@ def Quasar_LumFunction(): #Generate the quasars luminosity functions
 			log_Lum = (b_edges[:-1] + b_edges[1:]) / 2.0
 			hist = np.array(hist, dtype=np.float64)
                         phi = hist/(Volume * abs(bins[1]- bins[0])) # dex^-1 Mpc^-3
-
+			if(Quasar_LumFunctions == True):
+				if(Quasar_data == True):
+					Lum, phi_L, phi_L_err = Add_Quasar_LF_data(i,data=True)
+					#Lum = np.log10(Lum)
+					phi_L_err_min = phi_L - phi_L_err
+					phi_L_err_max = phi_L + phi_L_err
+					legHop = axarr[row[j],col[j]].errorbar(Lum, 10**phi_L, yerr =[(10**phi_L - 10**phi_L_err_min), (10** phi_L_err_max - 10**phi_L)],color = 'k', fmt = 'o', markersize=4.5)
+				if(Quasar_data_fit == True):
+					Lum, phi_L,phi_mx, phi_mi = Add_Quasar_LF_data(i,fit=True)
+					Lum = np.log10(Lum)
+					legHop = axarr[row[j],col[j]].plot(Lum, phi_L, color = 'k', linestyle = '-')
+					axarr[row[j],col[j]].fill_between(Lum,phi_mi,phi_mx, color = 'k', alpha = 0.15)
+				if(kk==0 and j==0):
+					legData.append(legHop)
+					legend_names.append('From Hopkins et al. 2007')
 			if(int(str(LGparams_loc['AccretionModel'])) == 0):
 				cc = col_names[0] 
 			elif(int(str(LGparams_loc['AccretionModel'])) == 1):
@@ -464,7 +476,7 @@ def Quasar_LumFunction(): #Generate the quasars luminosity functions
                         axarr[row[j],col[j]].set_yscale('log')
 
                         if(kk == 0):
-                                leg = axarr[row[j],col[j]].legend(loc = 'upper left',fontsize = 18, handlelength=0, handletextpad=0, fancybox=True)
+                                leg = axarr[row[j],col[j]].legend(loc = 'upper right',fontsize = 18, handlelength=0, handletextpad=0, fancybox=True)
                                 for item in leg.legendHandles:
                                         item.set_visible(False)
                                 if (row[j] == 0) and (col[j] == 0):
@@ -478,24 +490,27 @@ def Quasar_LumFunction(): #Generate the quasars luminosity functions
 
         for i in np.arange(0,len(ztoplot),1):
                 axarr[row[i],col[i]].set_xlim(42,47.9)
-                axarr[row[i],col[i]].set_ylim(1e-6,1e-2) # Check the factor 5
+                axarr[row[i],col[i]].set_ylim(1.1e-10,1e-2) # Check the factor 5
+
+
+	leg = axarr[row[0],col[0]].legend(legData,legend_names, loc = 'center left', fontsize = 13.5)
+        axarr[row[0],col[0]].add_artist(leg)
 
         seedMasses = np.array(seedMasses)
         acc_Model = np.array(acc_Model, int)
-        for kk in range(len(seedMasses)):
-		if(int(str(LGparams_loc['AccretionModel'])) == 0):
+        for kk in range(len(acc_Model)):
+		if(acc_Model[kk] == 0):
 			cc = col_names[0]
-		elif(int(str(LGparams_loc['AccretionModel'])) == 1):
+		elif(acc_Model[kk] == 1):
 			cc = col_names[1]
-		elif(int(str(LGparams_loc['AccretionModel'])) == 2):
+		elif(acc_Model[kk] == 2):
 			cc = col_names[2]
 		else:
 			cc = col_names[3]
-
                 c = mlines.Line2D([], [], color=cc, linestyle = '-', linewidth = 2, label = 'BH seed = %2.1e'%float(seedMasses[kk]) + r'$\rm [M_{\odot}]$' ' Model ' + np.str(acc_Model[kk]))
                 handles.append(c)
         labels = [h.get_label() for h in handles]
-        axarr[row[0],col[0]].legend(handles, labels, loc = "upper right", fontsize = 11)
+        axarr[row[0],col[0]].legend(handles, labels, loc = "lower left", fontsize = 11)
 
         fig = plt.tight_layout()
         f.subplots_adjust(wspace=0)
@@ -505,15 +520,14 @@ def Quasar_LumFunction(): #Generate the quasars luminosity functions
         f.text(0.0175, 0.5, r'$\phi \rm[dex^{-1} Mpc^{-3}]$', va='center', rotation='vertical', fontsize = 20)
         f.text(0.45, 0.025, r'$\mathrm{log_{10}(L_{bol}[erg/s])}$', va='center', rotation='horizontal', fontsize = 20)
 
-        plt.savefig(func_ns)
+        plt.savefig(plots_dir + 'Quasar_LF.pdf')
         plt.show()
 
 
 def BH_mass_Function():
-        P1 = Prop(wtp[0])    # property to be used for luminosity/mass function
 
         print '\n###########################################################################\n'
-        print '    PLOT:  ', P1, ' function'
+        print '    PLOT:  Black Hole mass function'
         print '    Redshifts used in plots:', ztoplot
         print '    Output prefix:', LGparams['FileNameGalaxies']
         print '\n############################################################################\n'
@@ -528,13 +542,17 @@ def BH_mass_Function():
         seedMasses = []
         acc_Model = []
         handles = []
+	legend_names = []
+	legData = []
+	BHg = []
 
         for nams,kk in zip(Folders_to_do, range(len(Folders_to_do))):
                 loc_parFile = nams + LG_inParFile[LG_inParFile.find('input/input')+6:]
                 LGparams_loc = read_LG_inParamFile(loc_parFile, LG_output_z, params_to_read)
                 seedMasses.append(str(LGparams_loc['BlackHoleSeedMass']))
                 acc_Model.append(str(LGparams_loc['AccretionModel']))
-		Volume = ((BoxSize/cosmo.h)**3.0) * (LGparams_loc['LastFile'] - LGparams_loc['FirstFile'] + 1) / MaxTreeFiles # Mpc^3
+		BHg.append(str(LGparams_loc['BlackHoleGrowthRate']))
+		Volume = ((BoxSize/cosmo.h)**3.0) * (LGparams_loc['LastFile'] - LGparams_loc['FirstFile'] + 1) / MaxTreeFiles # [Mpc^3]
 
                 for i,j in zip(ztoplot,np.arange(0,len(ztoplot),1)):
 			filepref = LGparams_loc['FileNameGalaxies'] + np.str(zdict(i, MII))
@@ -546,37 +564,40 @@ def BH_mass_Function():
 			bins=np.arange(min(pp),max(pp),0.20)
                         hist, b_edges = np.histogram(pp,bins)
                         pp_c= (b_edges[:-1] + b_edges[1:]) / 2.0
-                        phi = hist/(Volume * abs(bins[1]- bins[0]))
-                        #pp_c, phi = hist(pp,0.10)
-                        #phi = phi/(Volume * 0.10) # [dex^-1 Mpc^3]
+                        phi = hist/(Volume * abs(bins[1]- bins[0])) # [dex^-1 Mpc^3]
+
+			################################## DATA (config file details)#########################################################
                         if(plot_obs_data==True and kk == 0):
-				legend_names = []
-				legData = []
 				if(Marconi2004==True):
 					if(ztoplot[j]==0 and kk ==0): # I only add this plot in the redshift z = 0. (local universe)
-						BHmassM, phi_M, phi_maxM, phi_minM, BHmassU, phi_U, phi_maxU, phi_minU = plot_BH_MassFunction_data(ztoplot[j], Ma2004=True, Me2008=False)
-						legMarconi = axarr[row[j],col[j]].errorbar(BHmassM, 10**phi_M, yerr =[(10**phi_M - 10**phi_minM), (10** phi_maxM - 10**phi_M)],color = 'k', fmt = 'o', markersize=4.5)
-						legUeda = axarr[row[j],col[j]].errorbar(BHmassU, 10**phi_U, yerr =[(10**phi_U - 10**phi_minU), (10** phi_maxU - 10**phi_U)],color = 'g', fmt = 'o', markersize=4.5)
-						legData.append(legMarconi)
-						legData.append(legUeda)
-						leg_names = ['Marconi et al 2004', 'Ueda et al 2003']
-						#legData = axarr[row[j],col[j]].legend([legMarconi,legUeda], ('Marconi et al 2004', 'Ueda et al 2003'), bbox_to_anchor=(-0.08, 1), fontsize = 10) # Do you prefere the legend outside the plot? 
-						
+						BHmassM, phi_M, phi_maxM, phi_minM, BHmassU, phi_U, phi_maxU, phi_minU = plot_BH_MassFunction_data(ztoplot[j], Ma2004=True)
+						#legMarconi = axarr[row[j],col[j]].errorbar(BHmassM, 10**phi_M, yerr =[(10**phi_M - 10**phi_minM), (10** phi_maxM - 10**phi_M)],color = 'k', fmt = 'o', markersize=4.5)
+						legMarconi = axarr[row[j],col[j]].plot(BHmassM,10**phi_M, color = 'black', linewidth = 2.25, linestyle = '--')
+						axarr[row[j],col[j]].fill_between(BHmassM,10**phi_minM, 10**phi_maxM, color = 'k', alpha = 0.15)
+						legData.append(legMarconi[0])
+						#legUeda = axarr[row[j],col[j]].errorbar(BHmassU, 10**phi_U, yerr =[(10**phi_U - 10**phi_minU), (10** phi_maxU - 10**phi_U)],color = 'g', fmt = 's', markersize=4.5)
+						#legData.append(legUeda)
+						legend_names.append('Marconi et al. 2004')
+						#legend_names.append('Ueda et al. 2003')
+				if(Shankar2004 == True):
+                                        if(ztoplot[j]==0 and kk ==0): # I only add this plot in the redshift z = 0. (local universe)
+                                                BHmassS, phi_minS, phi_S, phi_maxS = plot_BH_MassFunction_data(ztoplot[j],Sha2004 = True)
+                                                legSa2004 = axarr[row[j],col[j]].errorbar(BHmassS, 10**phi_S, yerr =[(10**phi_S - 10**phi_minS), (10** phi_maxS - 10**phi_S)],color = 'brown', fmt = 'p', markersize=4.5)
+                                                legData.append(legSa2004)
+                                                legend_names.append('Shankar et al. 2004')
 				if(Merloni2008==True):
-					BHmass, phi_max, phi_min = plot_BH_MassFunction_data(ztoplot[j],Ma2004=False, Me2008=True)
+					BHmass, phi_max, phi_min = plot_BH_MassFunction_data(ztoplot[j],Me2008=True)
 					phi_data = (phi_max - phi_min)/2.
 					legMerloni = axarr[row[j],col[j]].fill_between(BHmass, phi_min,phi_max, color = 'k', alpha = 0.35) 
 					if(kk ==0):
 						legData.append(legMerloni)
-						leg_names.append('Merloni & Heinz et al 2008')
-				if(ztoplot[j]==0 and kk ==0): # Add the legend of the data
-						leg = axarr[row[j],col[j]].legend(legData,leg_names, loc = 'center left', fontsize = 10)
-                                                axarr[row[j],col[j]].add_artist(leg)
+						legend_names.append('Merloni & Heinz et al. 2008')
+			################################## End DATA #########################################################################
 
                         axarr[row[j],col[j]].plot(pp_c,phi,color = sfcol[kk], linewidth=2, label = '$z$ = ' + zdict(i, MII))
                         axarr[row[j],col[j]].set_yscale('log')
                         if(kk == 0):
-                                leg = axarr[row[j],col[j]].legend(loc = 'upper right',fontsize = 13.5, handlelength=0, handletextpad=0, fancybox=True)
+                                leg = axarr[row[j],col[j]].legend(loc = 'upper right',fontsize = 14, handlelength=0, handletextpad=0, fancybox=True)
                                 for item in leg.legendHandles:
                                         item.set_visible(False)
                                 if (row[j] == 0) and (col[j] == 0):
@@ -589,15 +610,22 @@ def BH_mass_Function():
 
         for i in np.arange(0,len(ztoplot),1):
                 axarr[row[i],col[i]].set_xlim(6,10)
-                axarr[row[i],col[i]].set_ylim(1e-8,1e-2) # Check the factor 5
+                axarr[row[i],col[i]].set_ylim(1e-8,1e-2) 
+
+	############# legend names ###########
+	print legData,legend_names
+        leg = axarr[row[0],col[0]].legend(legData,legend_names, loc = 'center left', fontsize = 13.5)
+        axarr[row[0],col[0]].add_artist(leg)
 
         seedMasses = np.array(seedMasses)
         acc_Model = np.array(acc_Model, int)
+	BHg = np.array(BHg)
         for kk in range(len(seedMasses)):
-                c = mlines.Line2D([], [], color=sfcol[kk], linestyle = '-', linewidth = 2, label = 'BH seed = %2.1e'%float(seedMasses[kk]) + r'$\rm [M_{\odot}]$' ' Model ' + np.str(acc_Model[kk]))
+                c = mlines.Line2D([], [], color=sfcol[kk], linestyle = '-', linewidth = 2, label = 'BH seed = %2.1e'%float(seedMasses[kk]) + r'$\rm [M_{\odot}]$' ' Model ' + np.str(acc_Model[kk]) + ' Growth rate: '+ np.str(BHg[kk]))
                 handles.append(c)
         labels = [h.get_label() for h in handles]
         axarr[row[0],col[0]].legend(handles, labels, loc = "lower left", fontsize = 11)
+	############# end legend names #######
 
         fig = plt.tight_layout()
         f.subplots_adjust(wspace=0)
@@ -605,7 +633,7 @@ def BH_mass_Function():
         f.subplots_adjust(left=0.11)
         #f.subplots_adjust(right=1.)
         f.subplots_adjust(bottom=0.09)
-        f.text(0.0175, 0.5, r'$\phi_(\rm{M_{BH}}) \rm[dex^{-1} Mpc^{-3}]$', va='center', rotation='vertical', fontsize = 20)
+        f.text(0.0175, 0.5, r'$\phi(\rm{M_{BH}}) \rm[dex^{-1} Mpc^{-3}]$', va='center', rotation='vertical', fontsize = 20)
         f.text(0.45, 0.025, r'$\rm log_{10}(M_{BH}[M_{\odot}])$', va='center', rotation='horizontal', fontsize = 20)
 	f.canvas.draw()
         labels = [item.get_text() for item in axarr[0,0].get_yticklabels()]
@@ -620,57 +648,80 @@ def BH_mass_Function():
 
 
 
-def plot_BH_MassFunction_data(redshift_desired,Ma2004=True, Me2008=False):
+
+
+def Bulge_MBH_local_universe():
+        print '\n###########################################################################\n'
+        print '    PLOT:  Bulge vs BH mass local universe'
+        print '    Redshifts used in plots: $z$ = 0'
+        print '    Output prefix:', LGparams['FileNameGalaxies']
+        print '\n############################################################################\n'
+
+        Folders_to_do = get_outFolder_names(plot_last_run, LGparams, LGout_dir, here) # Files we have to plot
+
+        sfcol = plt.cm.spectral(np.linspace(0.2,0.9,len(Folders_to_do)))
+        seedMasses = []
+        acc_Model = []
+        handles = []
+	BHg = []
+        legend_names = []
+        legData = []
+	redshift = 0.0
+	f, ax = plt.subplots()
+        for nams,kk in zip(Folders_to_do, range(len(Folders_to_do))):
+                loc_parFile = nams + LG_inParFile[LG_inParFile.find('input/input')+6:]
+                LGparams_loc = read_LG_inParamFile(loc_parFile, LG_output_z, params_to_read)
+                seedMasses.append(str(LGparams_loc['BlackHoleSeedMass']))
+                acc_Model.append(str(LGparams_loc['AccretionModel']))
+                BHg.append(str(LGparams_loc['BlackHoleGrowthRate']))
+
+		filepref = LGparams_loc['FileNameGalaxies'] + np.str(zdict(redshift, MII))
+		a = read_snap(nams,filepref,LGparams_loc['FirstFile'],LGparams_loc['LastFile'],PropertiesToRead,LGalaxiesStruct)
+		gg = a[3]
+		BH = gg['BlackHoleMass'] * 1e10 / cosmo.h # M_sun
+		Bulge = gg['BulgeMass'] * 1e10 / cosmo.h # M_sun 
+		BH = np.log10(BH) # log(BHMass) [M_sun]
+		print 'Bulge', Bulge
+		print 'BH', BH
+		Bulge = np.log10(Bulge) # log10(Bulge) [M_sun]
+		dummy = np.where((BH>0) & (Bulge>0))
+		print BH[dummy]
+		print Bulge[dummy]
+		#ax.plot(Bulge,BH, color = sfcol[kk], marker = ',', linestyle = ' ')#, label= 'BH seed = %2.1e'%float(seedMasses[kk]) + r'$\rm [M_{\odot}]$' ' Model ' + np.str(acc_Model[kk]))
+		pos_Bulge, med_BH, p16_BH, p84_BH = Median_cloud_points(Bulge[dummy],BH[dummy])
+		ax.plot(pos_Bulge,med_BH,linestyle = '--', linewidth = 2.25, color = sfcol[kk])
+		#ax.fill_between(pos_Bulge,p16_BH, p84_BH,color = sfcol[kk], alpha = 0.2)
+		if(kk ==0): 
+			Bulge_Fit, BH_fit, low, up = Plot_Fit_Haring_Rix_2004()
+			ax.fill_between(Bulge_Fit, low, up,color = 'grey', alpha = 0.5)
+			ax.plot(Bulge_Fit,BH_fit, color = 'k', linewidth = 2.25, linestyle = '-', label  = 'Haring & Rix (2004)')
 	
-	if(Ma2004==True):
-		BHmassMarconi2004, phiMarconi2004, phi_maxMarconi2004, phi_minMarconi2004 = np.loadtxt( data_Dir + '/Marconi2004', unpack =True)
-		BHmassUeda_et_al, phiUeda_et_al, phi_maxUeda_et_al, phi_minUeda_et_al = np.loadtxt( data_Dir + '/Ueda_et_al', unpack =True)
-						
-		return BHmassMarconi2004, phiMarconi2004, phi_maxMarconi2004, phi_minMarconi2004, BHmassUeda_et_al, phiUeda_et_al, phi_maxUeda_et_al, phi_minUeda_et_al
-	elif(Me2008==True):
-		#zz = np.array([0.10,0.30,0.60,1.0,1.5,2.0,3.0,4.0,5.0])
-		zz = np.array([0.0,0.30,0.60,1.0,1.5,2.0,3.0,4.0,5.0]) # Be carefullly is not z = 0, is z = 0.1 but for plots it's right
-		name_data = '/mf_mh08.dat'
-		BHmass, phi_max, BHmass_dummy, phi_min = np.loadtxt(data_Dir + name_data, unpack =True)
-		#import pdb as pdb
-		#pdb.set_trace()
-		if(removeh == False):
-			phi_max = phi_max * cosmo.h**3
-			phi_min = phi_min * cosmo.h**3
-			if(Factor10[0] == True):
-				BHmass = BHmass + np.log10(cosmo.h)
-		#import pdb as pdb
-		#pdb.set_trace()
-		if(Factor10[0] == False): 
-			BHmass = 10**BHmass	
-		BHmass = np.split(BHmass,9)
-		phi_max = np.split(phi_max,9)
-		phi_min = np.split(phi_min,9)
-		#import pdb as pdb
-		#pdb.set_trace()
-		pos_redshift_desired = np.where(zz == redshift_desired)
-		if(len(pos_redshift_desired[0])==0):
-			print 'zz', zz
-			print 'redshift_desired', redshift_desired
-			pos_redshift_desired_min = np.where(zz<redshift_desired)
-			pos_redshift_desired_max = np.where(zz>redshift_desired)
-			print 'pos_redshift_desired_min', pos_redshift_desired_min
-			print 'pos_redshift_desired_max', pos_redshift_desired_max
-			zz_min = zz[pos_redshift_desired_min[0][-1]]
-			zz_max = zz[pos_redshift_desired_max[0][0]]
-			print 'zz_min', zz_min
-			print 'zz_max', zz_max
-			diff_max = abs(zz_max-redshift_desired)
-			diff_min = abs(zz_min-redshift_desired)
-			print 'diff_max', diff_max, 'diff_min', diff_min
-			if(diff_max<diff_min):
-				return BHmass[pos_redshift_desired_max[0][0]], phi_max[pos_redshift_desired_max[0][0]], phi_min[pos_redshift_desired_max[0][0]]
-			else:
-				return BHmass[pos_redshift_desired_min[0][-1]], phi_max[pos_redshift_desired_min[0][-1]], phi_min[pos_redshift_desired_min[0][-1]]
-			
-		else:
-			print 'pos_redshift_desired', pos_redshift_desired[0], 'redshift_desired', redshift_desired, 'zz[pos_redshift_desired]', zz[pos_redshift_desired]
-			return BHmass[pos_redshift_desired[0]], phi_max[pos_redshift_desired[0]], phi_min[pos_redshift_desired[0]]
+        seedMasses = np.array(seedMasses)
+        acc_Model = np.array(acc_Model, int)
+        BHg = np.array(BHg)
+        for kk in range(len(seedMasses)):
+                c = mlines.Line2D([], [], color=sfcol[kk], marker = 'o', linestyle = ' ', linewidth = 2, label = 'BH seed = %2.1e'%float(seedMasses[kk]) + r'$\rm [M_{\odot}]$' ' Model ' + np.str(acc_Model[kk]) + ' Growth rate: '+ np.str(BHg[kk]))
+                handles.append(c)
+        labels = [h.get_label() for h in handles]
+        sim_data_leg = ax.legend(handles, labels, loc = "lower right", fontsize = 9.5)
+	ax.add_artist(sim_data_leg)
+	ax.set_xlim(9,12.5)
+	ax.set_ylim(6,10)
+	ax.legend(loc = 'upper left',fontsize = 12.5)
+	ax.text(11.5,8.0, '$z =$'+ np.str(redshift),fontsize = 22)
+        fig = plt.tight_layout()
+        f.subplots_adjust(wspace=0)
+        f.subplots_adjust(hspace=0.0)
+        f.subplots_adjust(left=0.11)
+	f.subplots_adjust(bottom=0.09)
+        #f.subplots_adjust(right=1.)
+	f.text(0.0175, 0.5, r"$\rm log(M_{BH} [M_{\odot}])$", va='center', rotation='vertical', fontsize = 20)
+        f.text(0.45, 0.025, r"$\rm log(M_{bulge} [M_{\odot}])$", va='center', rotation='horizontal', fontsize = 20)
+        plt.savefig(plots_dir + 'Bulge_BH.pdf')
+        plt.show()
+
+
+
 
 
 

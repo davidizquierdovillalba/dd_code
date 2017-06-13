@@ -14,21 +14,24 @@ from Useful_func import *
 
 GALTREE = False          # if 'True' reads galtree mode outputs and structures
 MII = False              # if 'True' MII boxsize is used (see below)
-wtp = [0, 0]             # properties to plot on x and y axis respectively. Available quatities are:  0:BH Mass,  1:StellarMass,  2:Mvir,  3:Sfr,  4:BulgeMass,  5:DiskMass, 6:seedTime
+wtp = [1, 0]             # properties to plot on x and y axis respectively. Available quatities are:  0:BH Mass,  1:StellarMass,  2:Mvir,  3:Sfr,  4:BulgeMass,  5:DiskMass, 6:seedTime
 ztoplot = [0,1,2,4]     # list of 4 redshift to be plotted (ONLY 4!!!!!)
-params_to_read = ['FileNameGalaxies', 'FirstFile', 'LastFile', 'BlackHoleSeedMass', 'AccretionModel', 'OutputDir']    # parameters/names to be read from LGalaxies input.par
+params_to_read = ['FileNameGalaxies', 'FirstFile', 'LastFile', 'BlackHoleGrowthRate', 'BlackHoleSeedMass', 'AccretionModel','OutputDir']    # parameters/names to be read from LGalaxies input.par
 
 # Add data in the plots?
 plot_obs_data = True
 if(plot_obs_data == True):
 	Marconi2004 = True # Black hole mass function Marconi et al 2004 arxive: https://arxiv.org/pdf/astro-ph/0409542.pdf
-	Merloni2008 = False 
-		
+	Merloni2008 = False # for different redshifts 
+	Shankar2004 = True # Black hole mass function Shankar et al. 2004 arxive: https://arxiv.org/pdf/astro-ph/0405585.pdf
+	Quasar_LumFunctions = True
+	Quasar_data  = True
+	Quasar_data_fit  = False 
 plot_last_run = False     # if 'True' output_dir name gets read from param_file variable (see below, section "RUN LGalaxies")
 fastcheck = False        # if 'True' plots only up to a fixed LastFile (see LGparams definition below)
 Plotlog = True           # if 'True' log-scale plots are produced
 Factor10 = [True,True]   # if 'True' uses 1.**10 units in plots (x and y axis, respectively)
-removeh =  True        # if 'True' plotted quantities are in "h-free" units (for data comparison)
+removeh =  False        # if 'True' plotted quantities are in "h-free" units (for data comparison)
 DMap_RES = 200           # Resolution (number of bins in each axis) for density maps (optimal: 100)
 sizebin = 0.1		 # Size bin in MoL_func when Plotlog = True; otherwise other sizebin is automatically selected
 
@@ -85,9 +88,9 @@ elif(user == 'dizquierdo'):
 	#                               #
 	#################################
 	
-	ptc = np.array(['BlackHoleSeedMass', 'AgnEfficiency', 'AccretionModel', 'OutputDir'])  # run-dependent parameters to be written in the output folder name
-	ptc_alis = np.array(['seedM','eff', 'accmod'])              #parameter-alias to be written in the output folder name
-	par_changed = [1,0,1,1]   #The last one MUST be ALWAYS = 1
+	ptc = np.array(['AgnEfficiency','BlackHoleGrowthRate', 'BlackHoleSeedMass', 'AccretionModel','OutputDir'])  # run-dependent parameters to be written in the output folder name
+	ptc_alis = np.array(['eff','BHGro', 'seedM','accmod'])              #parameter-alias to be written in the output folder name
+	par_changed = [0,1,1,1,1]   #The last one MUST be ALWAYS = 1
         
 else:
 	print 'Error: User not found in the Config.py'
