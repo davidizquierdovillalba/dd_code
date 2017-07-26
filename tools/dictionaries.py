@@ -70,10 +70,10 @@ def zdict(x, mill2):
 
 def snapdict(x):
     vals = {
-        0 : '63',
-        1 : '40',
-        2 : '27',
-        3 : '23'
+        0 : '58',
+        1 : '38',
+        2 : '30',
+        4 : '22'
     }.get(x, ' ')
     if vals == ' ' :
         raise ValueError("Invalid redshift value: %s. You may want to add it in the dictionary"%x)

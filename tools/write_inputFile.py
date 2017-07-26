@@ -27,9 +27,13 @@ def do_and_move_parFile():
 	    for i in range(len(lines)):
 		if s in lines[i] and s == ptu[kk] and s != 'OutputDir':
 		    aa = str(lines[i].split()[1])
+                    if(s == 'BHGrowthInDiskInstabilityModel'): aa_val = ptu_alis[kk]+str(int(lines[i].split()[1])) 
+                    if(s == 'BlackHoleCutoffVelocity'): aa_val = ptu_alis[kk]+str(float(lines[i].split()[1]))
                     if(s == 'BlackHoleGrowthRate'): aa_val = ptu_alis[kk]+str(float(lines[i].split()[1]))
-                    if(s == 'AccretionModel'): aa_val = ptu_alis[kk]+str(int(lines[i].split()[1]))
                     if(s == 'BlackHoleSeedMass'): aa_val = ptu_alis[kk]+str( np.round(np.log10( float(lines[i].split()[1])),2) )
+                    if(s == 'AccretionModel'): aa_val = ptu_alis[kk]+str(int(lines[i].split()[1]))
+                    if(s == 'DIduringMerger'): aa_val = ptu_alis[kk]+str(int(lines[i].split()[1])) 
+                    if(s == 'BHGrRaDI'): aa_val = ptu_alis[kk]+str(float(lines[i].split()[1])) 
 		    else: aa_val = ptu_alis[kk]+str(float(lines[i].split()[1]))
 		    #else: aa_val = ptu_alis[kk]+str( np.round(np.log10( float(lines[i].split()[1])),2) )
 		    temp_fold.append(aa_val)

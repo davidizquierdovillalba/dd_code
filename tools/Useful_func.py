@@ -32,11 +32,9 @@ def hist(values,sizebins):
 
 
 
-def get_prefix(gltree, mill2, seed):
+def get_prefix(gltree,mill2, seed):
     if gltree == True:
 	pfx = 'SA_galtree_'
-    elif mill2 == True:
-	pfx = 'SA_MII_BHseed1e3_z'#'SA_MII__z'
     else:
         pfx = 'SA_z'
     return pfx
@@ -79,7 +77,7 @@ def read_LG_inParamFile(inputs, z_list, ptr):
     for s in ptr:
         for i in range(len(lines)):
             if s in lines[i] and s != 'FileNameGalaxies' and s != 'OutputDir':
-                if s != 'BlackHoleSeedMass' and s!= 'BlackHoleGrowthRate':
+                if s != 'BlackHoleSeedMass' and s!= 'BlackHoleGrowthRate' and s!='BlackHoleCutoffVelocity' and s!='AgnEfficiency' and s!='BHGrRaDI':
                     params[s] = int(lines[i].split()[1])
                 else:
                     params[s] = float(lines[i].split()[1])
@@ -113,17 +111,23 @@ def Hopkins_fit(phi_star, L_star, gamma1, gamma2, array_Lum_erg):
 	return phi
 	
 def Hopkins_fit_err(phi_star, errphi_star, L_star, err_L_star, gamma1, err_gamma1,gamma2, err_gamma2, array_Lum_erg):
-	print errphi_star,err_L_star,err_gamma1,err_gamma2
+
+
 	der_phi_star = errphi_star/((array_Lum_erg/L_star)**gamma1 + (array_Lum_erg/L_star)**gamma2)
 	der_phi_star = (der_phi_star)**2
-	der_L_star = - err_L_star * (phi_star/L_star**2) * (((array_Lum_erg/L_star)**gamma1 + (array_Lum_erg/L_star)**gamma2)**(-2)) * ((gamma1*(array_Lum_erg/L_star)**(gamma1-1) + gamma2*(array_Lum_erg/L_star)**(gamma2-1)))
+
+	der_L_star = (phi_star * err_L_star * L_star**-2) * ((array_Lum_erg/L_star)**(gamma1-1) + (array_Lum_erg/L_star)**(gamma2-1)) / ((array_Lum_erg/L_star)**gamma1 + (array_Lum_erg/L_star)**gamma2)**2
 	der_L_star = (der_L_star)**2
-	der_gamma1 = -phi_star* err_gamma1 * (((array_Lum_erg/L_star)**gamma1 + (array_Lum_erg/L_star)**gamma2)**(-2)) * (gamma1*(array_Lum_erg/L_star)**(gamma1-1))
+
+	der_gamma1 = -phi_star* err_gamma1 * (((array_Lum_erg/L_star)**gamma1 + (array_Lum_erg/L_star)**gamma2)**(-2)) * (gamma1*(array_Lum_erg/L_star)**(gamma1)) * np.log((array_Lum_erg/L_star))
 	der_gamma1 = (der_gamma1)**2
-	der_gamma2 = -phi_star* err_gamma2 * (((array_Lum_erg/L_star)**gamma1 + (array_Lum_erg/L_star)**gamma2)**(-2)) * (gamma2*(array_Lum_erg/L_star)**(gamma2-1))
+
+	der_gamma2 = -phi_star* err_gamma2 * (((array_Lum_erg/L_star)**gamma1 + (array_Lum_erg/L_star)**gamma2)**(-2)) * (gamma2*(array_Lum_erg/L_star)**(gamma2)) * np.log((array_Lum_erg/L_star))
 	der_gamma2 = (der_gamma2)**2
+
 	err_tot = (der_phi_star+der_L_star+der_gamma1+der_gamma2)**0.5
 	phi = Hopkins_fit(phi_star, L_star, gamma1, gamma2, array_Lum_erg)
+
 	phi_max= phi + err_tot
 	phi_min = phi - err_tot
 	return phi_max,phi_min
@@ -151,7 +155,7 @@ def Add_Quasar_LF_data(redshift, data=False, fit=False):
                 if(len(_sel[0])==0):
                         return 0, 0
                 else:
-                        luminosities = np.arange(40,48,0.05)
+                        luminosities = np.arange(40,50,0.05)
                         luminosities = 10 ** luminosities
                         phi_luminosities = Hopkins_fit(phi[_sel][0],L_s[_sel][0],gam1[_sel][0],gam2[_sel][0],luminosities)
                         phi_max, phi_min = Hopkins_fit_err(phi[_sel][0],err_phi[_sel][0],L_s[_sel][0],err_L_s[_sel][0],gam1[_sel][0],err_gam1[_sel][0],gam2[_sel][0],err_gam2[_sel][0],luminosities)
@@ -176,10 +180,27 @@ def Plot_Fit_Haring_Rix_2004():
 	MBH_log_lower_lim = MBH_log + MBH_lim
 	Bulge_mass = Bulge_mass + 11
 	return Bulge_mass, MBH_log, MBH_log_lower_lim, MBH_log_up_lim
+
+
+def Plot_Fit_McConell():
+	print 'Nicholas J. McConnell and Chung-Pei Ma fit --> arxive: http://iopscience.iop.org/article/10.1088/0004-637X/764/2/184/pdf'
+	alpha = 8.46
+	err_alpha = 0.08
+	beta = 1.05
+	err_beta = 0.11
+	Bulge_mass = np.arange(0.006,40,0.001)	# /1e11 M_sum
+	Bulge_mass = np.log10(Bulge_mass)
+	MBH_log =  alpha + beta*Bulge_mass
+        MBH_lim = ((MBH_log * err_beta)**2 + (err_alpha)**2)**0.5
+        MBH_log_up_lim = MBH_log - MBH_lim
+        MBH_log_lower_lim = MBH_log + MBH_lim
+        Bulge_mass = Bulge_mass + 11
+        return Bulge_mass, MBH_log, MBH_log_lower_lim, MBH_log_up_lim
+	
 	
 def Median_cloud_points(x,y):
 	nbins = 30.
-	sb = (np.max(x) - 9)/nbins
+	sb = (11.5 - 9.0)/nbins
 	x_points = []
 	medians = []
 	p84 = []
@@ -214,35 +235,17 @@ def plot_BH_MassFunction_data(redshift_desired,Ma2004=False, Me2008=False, Sha20
                 BHmass, phi_max, BHmass_dummy, phi_min = np.loadtxt(data_Dir + name_data, unpack =True)
                 #import pdb as pdb
                 #pdb.set_trace()
-                if(removeh == False):
-                        phi_max = phi_max * cosmo.h**3
-                        phi_min = phi_min * cosmo.h**3
-                        if(Factor10[0] == True):
-                                BHmass = BHmass + np.log10(cosmo.h)
-                #import pdb as pdb
-                #pdb.set_trace()
-                if(Factor10[0] == False):
-                        BHmass = 10**BHmass
                 BHmass = np.split(BHmass,9)
                 phi_max = np.split(phi_max,9)
                 phi_min = np.split(phi_min,9)
-                #import pdb as pdb
-                #pdb.set_trace()
                 pos_redshift_desired = np.where(zz == redshift_desired)
                 if(len(pos_redshift_desired[0])==0):
-                        print 'zz', zz
-                        print 'redshift_desired', redshift_desired
                         pos_redshift_desired_min = np.where(zz<redshift_desired)
                         pos_redshift_desired_max = np.where(zz>redshift_desired)
-                        print 'pos_redshift_desired_min', pos_redshift_desired_min
-                        print 'pos_redshift_desired_max', pos_redshift_desired_max
                         zz_min = zz[pos_redshift_desired_min[0][-1]]
                         zz_max = zz[pos_redshift_desired_max[0][0]]
-                        print 'zz_min', zz_min
-                        print 'zz_max', zz_max
                         diff_max = abs(zz_max-redshift_desired)
                         diff_min = abs(zz_min-redshift_desired)
-                        print 'diff_max', diff_max, 'diff_min', diff_min
                         if(diff_max<diff_min):
                                 return BHmass[pos_redshift_desired_max[0][0]], phi_max[pos_redshift_desired_max[0][0]], phi_min[pos_redshift_desired_max[0][0]]
                         else:
@@ -257,4 +260,21 @@ def plot_BH_MassFunction_data(redshift_desired,Ma2004=False, Me2008=False, Sha20
                 return BHmassShankar2004, phi_minShankar2004, phi_Shankar2004, phi_maxShankar2004
         else:
                 return -1,-1,-1,-1
+
+
+def HistFixedMhalo(mstellar, mhalo):
+        print mstellar
+        masahalobin=[]
+        inter=[]
+        nBines=np.arange(9,14.75,0.25)
+        MedianasHalo = np.empty(len(nBines)-1)
+        HaloMass = np.empty(len(nBines)-1)
+        MedianasHalo.fill(-19)
+        for i in np.arange(1,len(nBines),1):
+                mini = nBines[i-1]
+                maxi = nBines[i]
+                _sel = np.where((mhalo>=mini) & (mhalo<maxi))
+                MedianasHalo[i-1] = np.median(mstellar[_sel])
+                HaloMass[i-1] = nBines[i-1] + (0.25/2.)
+        return HaloMass[np.where(MedianasHalo>-19)], MedianasHalo[np.where(MedianasHalo>-19)]
 

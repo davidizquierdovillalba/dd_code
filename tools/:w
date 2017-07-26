@@ -11,8 +11,9 @@ from Useful_func import *
 #                               #
 #################################
 
+
 GALTREE = False          # if 'True' reads galtree mode outputs and structures
-HaloProperties = False   # Struct with some halo properties
+GALTREEHALO = False	 #if 'True' reads galtree mode with more porpoerties of the halo is added in the structures (ask david)
 MII = False              # if 'True' MII boxsize is used (see below)
 wtp = [1, 0]             # properties to plot on x and y axis respectively. Available quatities are:  0:BH Mass,  1:StellarMass,  2:Mvir,  3:Sfr,  4:BulgeMass,  5:DiskMass, 6:seedTime
 ztoplot = [0,1,2,4]     # list of 4 redshift to be plotted (ONLY 4!!!!!)
@@ -25,15 +26,16 @@ if(plot_obs_data == True):
 	Merloni2008 = True # for different redshifts 
 	Shankar2004 = True # Black hole mass function Shankar et al. 2004 arxive: https://arxiv.org/pdf/astro-ph/0405585.pdf
 	Quasar_LumFunctions = True
-	Quasar_data  = True 
-	Quasar_data_fit  = False 
+	Quasar_data  = False 
+	Quasar_data_fit  = True 
 plot_last_run = False     # if 'True' output_dir name gets read from param_file variable (see below, section "RUN LGalaxies")
+fastcheck = False        # if 'True' plots only up to a fixed LastFile (see LGparams definition below)
 Plotlog = True           # if 'True' log-scale plots are produced
 Factor10 = [True,True]   # if 'True' uses 1.**10 units in plots (x and y axis, respectively)
 removeh =  False         # if 'True' plotted quantities are in "h-free" units (for data comparison)
 DMap_RES = 200           # Resolution (number of bins in each axis) for density maps (optimal: 100)
 sizebin = 0.1		 # Size bin in MoL_func when Plotlog = True; otherwise other sizebin is automatically selected
-model0 = False           # Accretion model  --> Henriques model WITHOUT ANY CHANGE NEITHER SPLIT
+model0 = True          # Accretion model  --> Henriques model WITHOUT ANY CHANGE NEITHER SPLIT
 
 
 
@@ -107,6 +109,8 @@ sys.path.append(AuxCode_dir + 'Misc/')          # import read_snap and read_tree
 from read_lgal import *
 
 LGparams = read_LG_inParamFile(LG_inParFile, LG_output_z, params_to_read)
+if fastcheck == True:
+        LGparams['LastFile'] = 1 # Comment this
 
 
 
@@ -117,6 +121,7 @@ LGparams = read_LG_inParamFile(LG_inParFile, LG_output_z, params_to_read)
 ###################################
 seedMass = '1.e3'  # should be = BlackHoleSeedMass in LGal input files. This goes in the file prefix
 fileprefx = get_prefix(GALTREE, MII, LGparams)  # automatic file prefix. Always call with all keywords
+
 png = True              # How to save the plots: In png (png = True) or in pdf (png = False)
 if(png == True):
 	dens_ns = plots_dir + Prop(wtp[0])+'_vs_'+Prop(wtp[1])+'density_plot.png'  # density plot name
@@ -182,14 +187,12 @@ cosmo = FlatLambdaCDM(H0 = Hubble_h*100, Om0 = Omega_M)
 
 sys.path.append(AuxCode_dir)
 if(GALTREE == False):
-	if(HaloProperties == True):
-		from LGalaxies_Henriques2015a_struct_HaloProp import LGalaxiesStruct 
-		from LGalaxies_Henriques2015a_struct_HaloProp import PropertiesToRead
-	else:
-		from LGalaxies_Henriques2015a_struct import LGalaxiesStruct 
-		from LGalaxies_Henriques2015a_struct import PropertiesToRead
+	from LGalaxies_Henriques2015a_struct import LGalaxiesStruct 
+	from LGalaxies_Henriques2015a_struct import PropertiesToRead
+elif(GALTREEHALO==True):
+	from LGalaxies_tree_HaloProp_Henriques2015a_struct import LGalaxiesStruct
+        from LGalaxies_tree_HaloProp_Henriques2015a_struct import PropertiesToRead
 else:
-	print 'importing GALTREE'
 	from LGalaxies_tree_Henriques2015a_struct import LGalaxiesStruct 
 	from LGalaxies_tree_Henriques2015a_struct import PropertiesToRead_tree
 
